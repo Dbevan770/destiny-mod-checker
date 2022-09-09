@@ -1,0 +1,104 @@
+Fusion Rifle Ammo Finder
+Linear Fusion Rifle Ammo Finder
+Rocket Launcher Ammo Finder
+Linear Fusion Rifle Targeting
+Machine Gun Targeting
+Rocket Launcher Loader
+Sidearm Dexterity
+Hand Cannon Reserves
+Rocket Launcher Reserves
+Unflinching Sidearm Aim
+Arrow Scavenger
+Fusion Rifle Scavenger
+Striking Light
+Heal Thyself
+Firepower
+Blast Radius
+Charged Up
+Extra Reserves
+Warmind's Light
+Strength of Rasputin
+Burning Cells
+Wrath of Rasputin
+Rage of the Warmind
+Cellular Suppression
+Power of Rasputin
+Warmind's Protection
+Warmind's Longevity
+Swift Charge
+Argent Ordnance
+Kindling the Flame
+Precision Charge
+Energy Converter
+Charge Harvester
+Elemental Armaments
+Font of Wisdom
+Well of Ions
+Seeking Wells
+Well of Striking
+Well of Ordnance
+Elemental Shards
+Elemental Time Dilation
+Supreme Wellmaker
+Well of Restoration
+Enduring Wells
+Rapid Oracle Disruptor
+Vex Breaker
+Superstructure Striker
+Aggressive Oracle Disruptor
+Vex Destroyer
+Superstructure Medic
+Precise Oracle Disruptor
+Vex Striker
+Superstructure Defender
+Anti-Oracle
+Anti-Praetorian
+Herd Thinner
+Enhanced Operator Augment
+Enhanced Scanner Augment
+Enhanced Suppressor Augment
+Enhanced Relay Defender
+Enhanced Voltaic Mote Collector
+Enhanced Resistant Tether
+Enhanced Voltaic Ammo Collector
+Relay Defender
+Voltaic Mote Collector
+Resistant Tether
+Voltaic Ammo Collector
+Riven's Curse
+Transcendent Blessing
+Taken Armaments
+Taken Invigoration
+Taken Barrier
+Taken Repurposing
+Umbral Sharpening
+Umbral Hastening
+Shocked Glyphkeeper
+Into the Light
+Smoldering Glyphkeeper
+Siphoned Glyphkeeper
+Stagnant Glyphkeeper
+Umbral Recharge
+Distorted Glyphkeeper
+Will of Light (Kinetic)
+Old Gods' Boon
+Run for Your Life
+Mortal Medicine
+Will of Light (Arc)
+Will of Light (Solar)
+Will of Light (Void)
+Will of Light (Stasis)
+Adept Icarus Grip
+Taken Spec
+Adept Impact
+Adept Stability
+Adept Range
+Adept Handling
+Adept Reload
+Adept Blast Radius
+Adept Projectile Speed
+Adept Charge Time
+Adept Mag
+Adept Targeting
+Adept Counterbalance
+Adept Big Ones Spec

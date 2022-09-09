@@ -1,0 +1,83 @@
+Firepower
+Blast Radius
+Charged Up
+Extra Reserves
+Strength of Rasputin
+Sheltering Energy
+Burning Cells
+Cellular Suppression
+Warmind's Longevity
+Surprise Attack
+Energy Converter
+Charge Harvester
+Elemental Light
+Font of Wisdom
+Seeking Wells
+Well of Striking
+Bountiful Wells
+Well of Ordnance
+Elemental Time Dilation
+Supreme Wellmaker
+Well of Restoration
+Enduring Wells
+Well of Utility
+Rapid Oracle Disruptor
+Vex Breaker
+Superstructure Striker
+Aggressive Oracle Disruptor
+Vex Destroyer
+Superstructure Medic
+Precise Oracle Disruptor
+Vex Striker
+Superstructure Defender
+Anti-Oracle
+Anti-Praetorian
+Herd Thinner
+Enhanced Operator Augment
+Enhanced Scanner Augment
+Enhanced Suppressor Augment
+Enhanced Relay Defender
+Enhanced Voltaic Mote Collector
+Enhanced Resistant Tether
+Enhanced Voltaic Ammo Collector
+Relay Defender
+Voltaic Mote Collector
+Resistant Tether
+Voltaic Ammo Collector
+Riven's Curse
+Transcendent Blessing
+Taken Armaments
+Taken Invigoration
+Taken Barrier
+Taken Repurposing
+Umbral Sharpening
+Umbral Hastening
+Shocked Glyphkeeper
+Into the Light
+Smoldering Glyphkeeper
+Siphoned Glyphkeeper
+Stagnant Glyphkeeper
+Umbral Recharge
+Distorted Glyphkeeper
+Will of Light (Kinetic)
+Old Gods' Boon
+Run for Your Life
+Mortal Medicine
+Will of Light (Arc)
+Will of Light (Solar)
+Will of Light (Void)
+Will of Light (Stasis)
+Adept Icarus Grip
+Taken Spec
+Adept Impact
+Adept Stability
+Adept Range
+Adept Handling
+Adept Reload
+Adept Blast Radius
+Adept Projectile Speed
+Adept Charge Time
+Adept Mag
+Adept Targeting
+Adept Counterbalance
+Adept Big Ones Spec
