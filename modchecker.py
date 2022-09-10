@@ -24,7 +24,7 @@ me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
 jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
 
 # Define what users to run the script with
-USERS = [me]
+USERS = [me, jones]
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -231,15 +231,23 @@ async def main():
             if message != "No new Mods today!":
                 await send_msg(user.id, "Did you buy these missing mods? (Yes/No)")
     # If dev was not specified run the actual looping code block
-    else:
+    elif sys.argv[1] == "prod":
         while True:
-            # Can now run immediately at reset, due to thr program waiting
+            # Can now run immediately at reset, due to the program waiting
             # 60 seconds if light.gg has not updated
+
+            # Store yesterday's Mods
+            prev_weapon_mods = await getWeaponMods()
+            prev_armor_mods = await getArmorMods()
+
+            print(prev_weapon_mods, prev_armor_mods)
+
             await asyncio.sleep(seconds_until(19,0))
 
             print("Running script...\n")
 
             WEAPON_MODS = await getWeaponMods()
+            print(WEAPON_MODS)
 
             while not WEAPON_MODS or WEAPON_MODS == prev_weapon_mods:
                 print("light.gg did not update... Waiting 60 secs and trying again...")
