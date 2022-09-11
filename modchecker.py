@@ -24,7 +24,7 @@ me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
 jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
 
 # Define what users to run the script with
-USERS = [me]
+USERS = [me, jones]
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -35,8 +35,6 @@ prev_armor_mods = []
 
 # Define what page we are accessing and define the webscraper
 URL = "https://www.light.gg/"
-page = requests.get(URL)
-soup = BeautifulSoup(page.content, "html.parser")
 
 # set up Discord bot client
 intents = discord.Intents.default()
@@ -165,6 +163,8 @@ def checkIfNew(user, weaponmods, armormods):
 # from Banshee
 async def getWeaponMods():
     weapon_mods = []
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
     
     print("Getting Weapon Mods List from light.gg...\n")
     for weapon in soup.find_all('div', class_="weapon-mods"):
@@ -178,6 +178,8 @@ async def getWeaponMods():
 # from Ada-1
 async def getArmorMods():
     armor_mods = []
+    page = requests.get(URL)
+    soup = BeautifulSoup(page.content, "html.parser")
     
     print("Getting Armor Mods List from light.gg...\n")
     for armor in soup.find_all('div', class_="armor-mods"):
@@ -196,8 +198,8 @@ async def main():
     # Allow me to run the code instantly by specifying dev in command line
     if sys.argv[1] == "dev":
         # Store yesterday's Mods
-        prev_weapon_mods = await getWeaponMods()
-        prev_armor_mods = await getArmorMods()
+        prev_weapon_mods = []
+        prev_armor_mods = []
 
         print(prev_weapon_mods, prev_armor_mods)
 
@@ -258,6 +260,8 @@ async def main():
 
             print(prev_weapon_mods, prev_armor_mods)
 
+            await asyncio.sleep(seconds_until(19,0))
+
             print("Running script...\n")
 
             WEAPON_MODS = await getWeaponMods()
@@ -267,7 +271,6 @@ async def main():
                 print("light.gg did not update... Waiting 60 secs and trying again...")
                 await asyncio.sleep(60)
                 WEAPON_MODS = await getWeaponMods()
-                print(WEAPON_MODS, prev_weapon_mods)
 
             print("Successfully got updated Weapon Mods List!\n")
             prev_weapon_mods = WEAPON_MODS
@@ -278,7 +281,6 @@ async def main():
                 print("light.gg did not update... Waiting 60 secs and trying again...")
                 await asyncio.sleep(60)
                 ARMOR_MODS = await getArmorMods()
-                print(ARMOR_MODS, prev_armor_mods)
 
             print("Successfully got updated Armor Mods List!\n")
             prev_armor_mods = ARMOR_MODS
