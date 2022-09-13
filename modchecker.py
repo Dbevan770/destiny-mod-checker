@@ -30,8 +30,9 @@ USERS = [me, jones]
 # Due to Light.gg ocassionally not updating right away
 # This allows me to verify that it has updated before
 # sending Discord messages
-prev_weapon_mods = []
-prev_armor_mods = []
+prev_mods = []
+
+runOnce = True
 
 # Define what page we are accessing and define the webscraper
 URL = "https://www.light.gg/"
@@ -106,7 +107,6 @@ async def send_msg(id, message):
     target = await client.fetch_user(id)
     print("Messaging User: ", end='')
     print(target)
-    print("\n")
     channel = await client.create_dm(target)
 
     await channel.send(message)
@@ -158,99 +158,78 @@ def checkIfNew(user, weaponmods, armormods):
     user.hasMissingMods = True
     return message
 
-
-# Go to light.gg and scrape the current mods offering
-# from Banshee
-async def getWeaponMods():
+# Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
+async def getMods():
     weapon_mods = []
-    page = requests.get(URL)
+    armor_mods = []
+
+    page = await requestPage()
+    if page.status_code != 200:
+        return [weapon_mods, armor_mods]
+
     soup = BeautifulSoup(page.content, "html.parser")
-    
-    print("Getting Weapon Mods List from light.gg...\n")
+
+    print("Getting available Mods from light.gg...\n")
     for weapon in soup.find_all('div', class_="weapon-mods"):
         img = weapon.find_all('img', alt=True)
         for i in range(0,4):
             weapon_mods.append(img[i]['alt'])
-        
-    return weapon_mods
-
-# Go to light.gg and scrape the current mods offering 
-# from Ada-1
-async def getArmorMods():
-    armor_mods = []
-    page = requests.get(URL)
-    soup = BeautifulSoup(page.content, "html.parser")
     
-    print("Getting Armor Mods List from light.gg...\n")
     for armor in soup.find_all('div', class_="armor-mods"):
         img = armor.find_all('img', alt=True)
         for i in range(0,4):
             armor_mods.append(img[i]['alt'])
-                
-    return armor_mods
+
+    return [weapon_mods, armor_mods]
 
 async def requestPage():
+    page = []
     page = requests.get(URL)
-    print(page)
-    soup = BeautifulSoup(page.content, "html.parser")
+
+    return page
 
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
-    # Ensure proper scope of these variables
-    global prev_weapon_mods
-    global prev_armor_mods
+    # Ensure proper scope of this variable
+    global prev_mods
+
+    if sys.argv[1] == "req-test":
+        page = await requestPage()
+        soup = BeautifulSoup(page.content, "html.parser")
+
+        for armor in soup.find_all('div', class_="armor-mods"):
+            img = armor.find_all('img', alt=True)
+            for i in range(0,4):
+                print(img[i]['alt'])
     
     # Allow me to run the code instantly by specifying dev in command line
-    if sys.argv[1] == "req-test":
-        while True:
-            requestPage()
-
     if sys.argv[1] == "dev":
         # Store yesterday's Mods
-        prev_weapon_mods = []
-        prev_armor_mods = []
+        prev_mods = [[],[]]
 
-        print(prev_weapon_mods, prev_armor_mods)
+        print(prev_mods)
 
         print("Running script...\n")
 
-        WEAPON_MODS = await getWeaponMods()
-        print(WEAPON_MODS)
+        MODS = await getMods()
+        print(MODS + "\n")
 
-        while not WEAPON_MODS or WEAPON_MODS == prev_weapon_mods:
-            print("light.gg did not update... Waiting 60 secs and trying again...")
+        while not MODS or MODS == prev_mods:
+            print("light.gg has not updated yet... Waiting 60s before trying again...\n")
             await asyncio.sleep(60)
-            WEAPON_MODS = await getWeaponMods()
-            print(WEAPON_MODS, prev_weapon_mods)
+            MODS = await getMods()
+            print(MODS, prev_mods)
 
-        print("Successfully got updated Weapon Mods List!\n")
-        prev_weapon_mods = WEAPON_MODS
-
-        ARMOR_MODS = await getArmorMods()
-
-        while not ARMOR_MODS or ARMOR_MODS == prev_armor_mods:
-            print("light.gg did not update... Waiting 60 secs and trying again...")
-            await asyncio.sleep(60)
-            ARMOR_MODS = await getArmorMods()
-            print(ARMOR_MODS, prev_armor_mods)
-
-        print("Successfully got updated Armor Mods List!\n")
-        prev_armor_mods = ARMOR_MODS
-
-        print("Successfully got latest mods from light.gg...\n")
-        print(WEAPON_MODS, ARMOR_MODS)
-        print("\n")
+        print("Successfully obtained available mods!\n")
 
         for user in USERS:
             print("Emptying Mod list for User: " + str(user.id) + "...")
             user.missingWeaponMods = []
             user.missingArmorMods = []
 
-            message = checkIfNew(user, WEAPON_MODS, ARMOR_MODS)
+            message = checkIfNew(user, MODS[0], MODS[1])
 
-            print("Sending message!\n")
-
-            print(message)
+            print(message + "\n")
 
             await send_msg(user.id, message)
 
@@ -259,60 +238,47 @@ async def main():
 
     # If dev was not specified run the actual looping code block
     elif sys.argv[1] == "prod":
+
         while True:
             # Can now run immediately at reset, due to the program waiting
             # 60 seconds if light.gg has not updated
 
             # Store yesterday's Mods
-            prev_weapon_mods = await getWeaponMods()
-            prev_armor_mods = await getArmorMods()
+            prev_mods = await getMods()
 
-            print(prev_weapon_mods, prev_armor_mods)
+            print(prev_mods)
 
-            await asyncio.sleep(seconds_until(19,0))
+            if not runOnce:
+                await asyncio.sleep(seconds_until(19,0))
 
             print("Running script...\n")
 
-            WEAPON_MODS = await getWeaponMods()
-            print(WEAPON_MODS)
+            MODS = await getMods()
+            print(MODS + "\n")
 
-            while not WEAPON_MODS or WEAPON_MODS == prev_weapon_mods:
-                print("light.gg did not update... Waiting 60 secs and trying again...")
+            while not MODS or MODS == prev_mods:
+                print("light.gg has not updated yet... Waiting 60s before trying again...\n")
                 await asyncio.sleep(60)
-                WEAPON_MODS = await getWeaponMods()
+                MODS = await getMods()
+                print(MODS, prev_mods)
 
-            print("Successfully got updated Weapon Mods List!\n")
-            prev_weapon_mods = WEAPON_MODS
-
-            ARMOR_MODS = await getArmorMods()
-
-            while not ARMOR_MODS or ARMOR_MODS == prev_armor_mods:
-                print("light.gg did not update... Waiting 60 secs and trying again...")
-                await asyncio.sleep(60)
-                ARMOR_MODS = await getArmorMods()
-
-            print("Successfully got updated Armor Mods List!\n")
-            prev_armor_mods = ARMOR_MODS
-
-            print("Successfully got latest mods from light.gg...\n")
-            print(WEAPON_MODS, ARMOR_MODS)
-            print("\n")
+            print("Successfully obtained available mods!\n")
 
             for user in USERS:
                 print("Emptying Mod list for User: " + str(user.id) + "...")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
-                message = checkIfNew(user, WEAPON_MODS, ARMOR_MODS)
+                message = checkIfNew(user, MODS[0], MODS[1])
 
-                print("Sending message!\n")
-
-                print(message)
+                print(message + "\n")
 
                 await send_msg(user.id, message)
 
                 if message != "No new Mods today!":
                     await send_msg(user.id, "Did you buy these missing mods? (Yes/No)")
+
+            runOnce = False
 
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
