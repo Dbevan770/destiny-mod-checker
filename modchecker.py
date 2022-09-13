@@ -189,6 +189,11 @@ async def getArmorMods():
                 
     return armor_mods
 
+async def requestPage():
+    page = requests.get(URL)
+    print(page)
+    soup = BeautifulSoup(page.content, "html.parser")
+
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
     # Ensure proper scope of these variables
@@ -196,6 +201,10 @@ async def main():
     global prev_armor_mods
     
     # Allow me to run the code instantly by specifying dev in command line
+    if sys.argv[1] == "req-test":
+        while True:
+            requestPage()
+
     if sys.argv[1] == "dev":
         # Store yesterday's Mods
         prev_weapon_mods = []
