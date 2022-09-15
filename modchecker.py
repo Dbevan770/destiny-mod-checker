@@ -4,6 +4,7 @@ import datetime
 import asyncio
 from bs4 import BeautifulSoup
 from discord.ext import tasks
+from datetime import date
 import sys
 
 # Define the User constructor, allows the program to be more expandable
@@ -18,19 +19,32 @@ class User:
         self.hasDeleted = _hasDeleted
         self.canUndo = _canUndo
 
+class MessageField:
+    def __init__(self, _name, _value):
+        self.name = _name
+        self.value = _value
+
 # Create User objects, in the future this could be pulled from a JSON
 # and made to be done from a "server" rather than my RPi locally
 me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
 jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
 
+deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
+undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
+comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
+
+COMMANDS = [deletemods, undo, comingsoon]
+
 # Define what users to run the script with
-USERS = [me, jones]
+USERS = [me]
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
 # This allows me to verify that it has updated before
 # sending Discord messages
 prev_mods = []
+
+mod_desc = "I went to the vendors today to check if they have any of your missing Mods. Please see below for my comprehensive list!"
 
 runOnce = True
 
@@ -80,24 +94,26 @@ async def on_message(message):
     # If it is sent in a DM do stuff
     if isinstance(message.channel,discord.DMChannel):
 
+        if message.content.lower() in ["!help", "!h"]:
+            await send_embed_msg(message.author.id, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS)
+
         # When a DM is received check which user it came from
         for user in USERS:
             # Once matched check if the User even has missing mods
             if message.author.id == user.id and user.hasMissingMods:
-
+                print("Received a message from a user with missing mods: ", end='')
+                print(user.id)
                 # If the user replies with yes delete the new mods from the list
                 # Otherwise just reply no
-                if message.content.lower() in ["yes", "y"] and not user.hasDeleted:
+                if message.content.lower() in ["!deletemods", "!dm"] and not user.hasDeleted:
                     await send_msg(user.id, "Okay, I will remove those mods from your list!")
                     deleteMods(user)
                     user.hasDeleted = True
-                    await send_msg(user.id, "Successfully removed your Mods, if this was a mistake, say 'undo'.")
+                    await send_msg(user.id, "Successfully removed your Mods, if this was a mistake, say '!undo'.")
                     user.canUndo = True
-                elif message.content.lower() in ["no", "n"] and not user.hasDeleted:
-                    await send_msg(user.id, "Okay, I will not remove those mods from your list.")
 
                 # The user can request 1 undo
-                if message.content.lower() == "undo" and user.canUndo:
+                if message.content.lower() in ["!undo", "!u"] and user.canUndo:
                     await send_msg(user.id, "Okay, I will undo the previous deletion!")
                     undoDeletion(user)
                     user.canUndo = False
@@ -113,9 +129,35 @@ async def send_msg(id, message):
 
     print("Message sent!\n")
 
+# Send an embeded message to the user
+async def send_embed_msg(id, title, desc, color, fields):
+    # Get todays date
+    today = date.today()
+    # Get the user data from their id
+    target = await client.fetch_user(id)
+    print("Sending Embeded Message to user: ", end='')
+    print(target, end='')
+    print("...\n")
+    # Stores the DM channel for the user to send a DM
+    channel = await client.create_dm(target)
+
+    # Create embeded Message template
+    embedMsg = discord.Embed(title=title, description=desc, color=color)
+    embedMsg.set_author(name=today.strftime("%B %d %Y"))
+
+    # Create all necessary fields and input their values
+    for field in fields:
+        embedMsg.add_field(name=field.name, value=field.value, inline=False)
+    
+    # Add footer to each embeded message
+    embedMsg.set_footer(text="All data is taken from light.gg\nTo see a list of all my commands say '!help'")
+
+    await channel.send(embed=embedMsg)
+
 # Check the mods for the day to see if they are in the missing mod list
 def checkIfNew(user, weaponmods, armormods):
-    message = ""
+    weapon_field = MessageField("Banshee-44 Mods", "")
+    armor_field = MessageField("Ada-1 Mods", "")
     with open(user.modfile, "r") as f:
         for line in f:
             line = line.strip()
@@ -129,34 +171,35 @@ def checkIfNew(user, weaponmods, armormods):
         f.close()
 
     if len(user.missingWeaponMods) == 0 and len(user.missingArmorMods) == 0:
-        message = "No new Mods today!"
+        weapon_field.value = "No New Mods Today!"
+        armor_field.value = "No New Mods Today!"
         user.hasMissingMods = False
-        return message
+        return [weapon_field, armor_field]
 
     if len(user.missingWeaponMods) >= 1:
         index = 0
-        message += "Banshee-44 has the following Mod(s) you are missing!:\n"
         for mod in weaponmods:
             if mod in user.missingWeaponMods:
                 if index != len(user.missingWeaponMods) - 1:
-                    message += mod + "\n"
+                    weapon_field.value += mod + "\n"
                 else:
-                    message += mod
-
-    message += "\n"
+                    weapon_field.value += mod
+    elif len(user.missingWeaponMods) == 0:
+        weapon_field.value = "No New Mods Today!"
 
     if len(user.missingArmorMods) >= 1:
         index = 0
-        message += "Ada-1 has the following Mod(s) you are missing!:\n"
         for mod in armormods:
             if mod in user.missingArmorMods:
                 if index != len(user.missingArmorMods) - 1:
-                    message += mod + "\n"
+                    armor_field.value += mod + "\n"
                 else:
-                    message += mod
+                    armor_field.value += mod
+    elif len(user.missingArmorMods) == 0:
+        armor_field.value = "No New Mods Today!"
 
     user.hasMissingMods = True
-    return message
+    return [weapon_field, armor_field]
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 async def getMods():
@@ -192,6 +235,7 @@ async def requestPage():
 async def main():
     # Ensure proper scope of this variable
     global prev_mods
+    global mod_desc
 
     if sys.argv[1] == "req-test":
         page = await requestPage()
@@ -201,6 +245,9 @@ async def main():
             img = armor.find_all('img', alt=True)
             for i in range(0,4):
                 print(img[i]['alt'])
+
+    if sys.argv[1] == "embed-test":
+        await send_embed_msg(USERS[0].id)
     
     # Allow me to run the code instantly by specifying dev in command line
     if sys.argv[1] == "dev":
@@ -212,7 +259,8 @@ async def main():
         print("Running script...\n")
 
         MODS = await getMods()
-        print(MODS + "\n")
+        print(MODS)
+        print("\n")
 
         while not MODS or MODS == prev_mods:
             print("light.gg has not updated yet... Waiting 60s before trying again...\n")
@@ -227,17 +275,17 @@ async def main():
             user.missingWeaponMods = []
             user.missingArmorMods = []
 
-            message = checkIfNew(user, MODS[0], MODS[1])
+            fields = checkIfNew(user, MODS[0], MODS[1])
 
-            print(message + "\n")
-
-            await send_msg(user.id, message)
-
-            if message != "No new Mods today!":
-                await send_msg(user.id, "Did you buy these missing mods? (Yes/No)")
+            await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
     # If dev was not specified run the actual looping code block
     elif sys.argv[1] == "prod":
+        if len(sys.argv) == 3:
+            if sys.argv[2] == "-r":
+                runOnce = True
+        else:
+            runOnce = False
 
         while True:
             # Can now run immediately at reset, due to the program waiting
@@ -254,7 +302,8 @@ async def main():
             print("Running script...\n")
 
             MODS = await getMods()
-            print(MODS + "\n")
+            print(MODS)
+            print("\n")
 
             while not MODS or MODS == prev_mods:
                 print("light.gg has not updated yet... Waiting 60s before trying again...\n")
@@ -269,14 +318,9 @@ async def main():
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
-                message = checkIfNew(user, MODS[0], MODS[1])
+                fields = checkIfNew(user, MODS[0], MODS[1])
 
-                print(message + "\n")
-
-                await send_msg(user.id, message)
-
-                if message != "No new Mods today!":
-                    await send_msg(user.id, "Did you buy these missing mods? (Yes/No)")
+                await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
             runOnce = False
 
