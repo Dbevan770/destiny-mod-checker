@@ -292,12 +292,12 @@ async def main():
             # 60 seconds if light.gg has not updated
 
             # Store yesterday's Mods
-            prev_mods = await getMods()
-
-            print(prev_mods)
-
             if not runOnce:
+                prev_mods = await getMods()
+                print(prev_mods)
                 await asyncio.sleep(seconds_until(19,0))
+            else:
+                prev_mods = [[],[]]
 
             print("Running script...\n")
 
