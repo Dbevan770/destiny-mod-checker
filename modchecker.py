@@ -36,7 +36,7 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 COMMANDS = [deletemods, undo, comingsoon]
 
 # Define what users to run the script with
-USERS = [me]
+USERS = [me, jones]
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -295,6 +295,7 @@ async def main():
             if not runOnce:
                 prev_mods = await getMods()
                 print(prev_mods)
+                print("\nWaiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(19,0))
             else:
                 prev_mods = [[],[]]
