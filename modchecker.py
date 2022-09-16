@@ -237,22 +237,64 @@ async def main():
     global mod_desc
     increment = 0
 
-    match sys.argv[1]:
-        case "req-test":
-            page = await requestPage()
-            soup = BeautifulSoup(page.content, "html.parser")
+    if sys.argv[1] == "req-test":
+        page = await requestPage()
+        soup = BeautifulSoup(page.content, "html.parser")
 
-            for armor in soup.find_all('div', class_="armor-mods"):
-                img = armor.find_all('img', alt=True)
-                for i in range(0,4):
-                    print(img[i]['alt'])
-        case "embed-test":
-            await send_embed_msg(USERS[0].id)
-        case "dev":
+        for armor in soup.find_all('div', class_="armor-mods"):
+            img = armor.find_all('img', alt=True)
+            for i in range(0,4):
+                print(img[i]['alt'])
+    elif sys.argv[1] == "embed-test":
+        await send_embed_msg(USERS[0].id)
+    elif sys.argv[1] == "dev":
+        # Store yesterday's Mods
+        prev_mods = [[],[]]
+
+        print(prev_mods)
+
+        print("Running script...\n")
+
+        MODS = await getMods()
+        print(f"Weapon Mods: {MODS[0]}\n")
+        print(f"Armor Mods: {MODS[1]}\n")
+
+        while not MODS or MODS == prev_mods:
+            print("light.gg has not updated yet... Waiting 60s before trying again...\n")
+            await asyncio.sleep(60)
+            MODS = await getMods()
+            print(MODS, prev_mods)
+
+        print("Successfully obtained available mods!\n")
+
+        for user in USERS:
+            print(f"Emptying Mod list for User: {str(user.id)}...")
+            user.missingWeaponMods = []
+            user.missingArmorMods = []
+
+            fields = checkIfNew(user, MODS[0], MODS[1])
+
+            await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
+    elif sys.argv[1] == "prod":
+        if len(sys.argv) == 3:
+            if sys.argv[2] == "-r":
+                runOnce = True
+        else:
+            runOnce = False
+
+        while True:
+            # Can now run immediately at reset, due to the program waiting
+            # 60 seconds if light.gg has not updated
+
             # Store yesterday's Mods
-            prev_mods = [[],[]]
-
-            print(prev_mods)
+            if not runOnce:
+                prev_mods = await getMods()
+                print(f"Previous Weapon Mods: {prev_mods[0]}\n")
+                print(f"Previous Armor Mods: {prev_mods[1]}\n")
+                print("Waiting until next Daily Reset...")
+                await asyncio.sleep(seconds_until(19,5))
+            else:
+                prev_mods = [[],[]]
 
             print("Running script...\n")
 
@@ -261,10 +303,15 @@ async def main():
             print(f"Armor Mods: {MODS[1]}\n")
 
             while not MODS or MODS == prev_mods:
+                if increment == 10:
+                    for user in USERS:
+                        await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
+
                 print("light.gg has not updated yet... Waiting 60s before trying again...\n")
                 await asyncio.sleep(60)
                 MODS = await getMods()
                 print(MODS, prev_mods)
+                increment = increment + 1
 
             print("Successfully obtained available mods!\n")
 
@@ -276,61 +323,11 @@ async def main():
                 fields = checkIfNew(user, MODS[0], MODS[1])
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
-        case "prod":
-            if len(sys.argv) == 3:
-                if sys.argv[2] == "-r":
-                    runOnce = True
-            else:
-                runOnce = False
 
-            while True:
-                # Can now run immediately at reset, due to the program waiting
-                # 60 seconds if light.gg has not updated
-
-                # Store yesterday's Mods
-                if not runOnce:
-                    prev_mods = await getMods()
-                    print(f"Previous Weapon Mods: {prev_mods[0]}\n")
-                    print(f"Previous Armor Mods: {prev_mods[1]}\n")
-                    print("Waiting until next Daily Reset...")
-                    await asyncio.sleep(seconds_until(19,5))
-                else:
-                    prev_mods = [[],[]]
-
-                print("Running script...\n")
-
-                MODS = await getMods()
-                print(f"Weapon Mods: {MODS[0]}\n")
-                print(f"Armor Mods: {MODS[1]}\n")
-
-                while not MODS or MODS == prev_mods:
-                    if increment == 10:
-                        for user in USERS:
-                            await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
-
-                    print("light.gg has not updated yet... Waiting 60s before trying again...\n")
-                    await asyncio.sleep(60)
-                    MODS = await getMods()
-                    print(MODS, prev_mods)
-                    increment = increment + 1
-
-                print("Successfully obtained available mods!\n")
-
-                for user in USERS:
-                    print(f"Emptying Mod list for User: {str(user.id)}...")
-                    user.missingWeaponMods = []
-                    user.missingArmorMods = []
-
-                    fields = checkIfNew(user, MODS[0], MODS[1])
-
-                    await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
-
-                runOnce = False
-        case "annoy":
-            print(f"Annoying Sully with message...\n")
-            await send_embed_msg(sully.id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
-        case _:
-            print("You input the wrong argument. Please try again.")
+            runOnce = False
+    elif sys.argv[1] == "annoy":
+        print(f"Annoying Sully with message...\n")
+        await send_embed_msg(sully.id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
 
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
