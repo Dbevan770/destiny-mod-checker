@@ -15,7 +15,6 @@ Heal Thyself
 Firepower
 Blast Radius
 Charged Up
-Extra Reserves
 Warmind's Light
 Strength of Rasputin
 Burning Cells
