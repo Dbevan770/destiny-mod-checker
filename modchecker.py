@@ -28,6 +28,7 @@ class MessageField:
 # and made to be done from a "server" rather than my RPi locally
 me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
 jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
+sully = User(843589494338617354, "", [], [], False, False, False)
 
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
@@ -93,6 +94,8 @@ async def on_message(message):
     
     # If it is sent in a DM do stuff
     if isinstance(message.channel,discord.DMChannel):
+        print(f"Received a message from a user with missing mods: {message.author}...\n")
+        print(message.content)
 
         if message.content.lower() in ["!help", "!h"]:
             await send_embed_msg(message.author.id, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS)
@@ -101,8 +104,6 @@ async def on_message(message):
         for user in USERS:
             # Once matched check if the User even has missing mods
             if message.author.id == user.id and user.hasMissingMods:
-                print("Received a message from a user with missing mods: ", end='')
-                print(user.id)
                 # If the user replies with yes delete the new mods from the list
                 # Otherwise just reply no
                 if message.content.lower() in ["!deletemods", "!dm"] and not user.hasDeleted:
@@ -121,8 +122,7 @@ async def on_message(message):
 # async function to send the message to each user
 async def send_msg(id, message):
     target = await client.fetch_user(id)
-    print("Messaging User: ", end='')
-    print(target)
+    print(f"Messaging User: {target}")
     channel = await client.create_dm(target)
 
     await channel.send(message)
@@ -135,9 +135,7 @@ async def send_embed_msg(id, title, desc, color, fields):
     today = date.today()
     # Get the user data from their id
     target = await client.fetch_user(id)
-    print("Sending Embeded Message to user: ", end='')
-    print(target, end='')
-    print("...\n")
+    print(f"Sending Embeded Message to user: {target}...\n")
     # Stores the DM channel for the user to send a DM
     channel = await client.create_dm(target)
 
@@ -146,8 +144,9 @@ async def send_embed_msg(id, title, desc, color, fields):
     embedMsg.set_author(name=today.strftime("%B %d %Y"))
 
     # Create all necessary fields and input their values
-    for field in fields:
-        embedMsg.add_field(name=field.name, value=field.value, inline=False)
+    if len(fields) > 0:
+        for field in fields:
+            embedMsg.add_field(name=field.name, value=field.value, inline=False)
     
     # Add footer to each embeded message
     embedMsg.set_footer(text="All data is taken from light.gg\nTo see a list of all my commands say '!help'")
@@ -236,75 +235,30 @@ async def main():
     # Ensure proper scope of this variable
     global prev_mods
     global mod_desc
+    increment = 0
 
-    if sys.argv[1] == "req-test":
-        page = await requestPage()
-        soup = BeautifulSoup(page.content, "html.parser")
+    match sys.argv[1]:
+        case "req-test":
+            page = await requestPage()
+            soup = BeautifulSoup(page.content, "html.parser")
 
-        for armor in soup.find_all('div', class_="armor-mods"):
-            img = armor.find_all('img', alt=True)
-            for i in range(0,4):
-                print(img[i]['alt'])
-
-    if sys.argv[1] == "embed-test":
-        await send_embed_msg(USERS[0].id)
-    
-    # Allow me to run the code instantly by specifying dev in command line
-    if sys.argv[1] == "dev":
-        # Store yesterday's Mods
-        prev_mods = [[],[]]
-
-        print(prev_mods)
-
-        print("Running script...\n")
-
-        MODS = await getMods()
-        print(MODS)
-        print("\n")
-
-        while not MODS or MODS == prev_mods:
-            print("light.gg has not updated yet... Waiting 60s before trying again...\n")
-            await asyncio.sleep(60)
-            MODS = await getMods()
-            print(MODS, prev_mods)
-
-        print("Successfully obtained available mods!\n")
-
-        for user in USERS:
-            print("Emptying Mod list for User: " + str(user.id) + "...")
-            user.missingWeaponMods = []
-            user.missingArmorMods = []
-
-            fields = checkIfNew(user, MODS[0], MODS[1])
-
-            await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
-
-    # If dev was not specified run the actual looping code block
-    elif sys.argv[1] == "prod":
-        if len(sys.argv) == 3:
-            if sys.argv[2] == "-r":
-                runOnce = True
-        else:
-            runOnce = False
-
-        while True:
-            # Can now run immediately at reset, due to the program waiting
-            # 60 seconds if light.gg has not updated
-
+            for armor in soup.find_all('div', class_="armor-mods"):
+                img = armor.find_all('img', alt=True)
+                for i in range(0,4):
+                    print(img[i]['alt'])
+        case "embed-test":
+            await send_embed_msg(USERS[0].id)
+        case "dev":
             # Store yesterday's Mods
-            if not runOnce:
-                prev_mods = await getMods()
-                print(prev_mods)
-                print("\nWaiting until next Daily Reset...")
-                await asyncio.sleep(seconds_until(19,0))
-            else:
-                prev_mods = [[],[]]
+            prev_mods = [[],[]]
+
+            print(prev_mods)
 
             print("Running script...\n")
 
             MODS = await getMods()
-            print(MODS)
-            print("\n")
+            print(f"Weapon Mods: {MODS[0]}\n")
+            print(f"Armor Mods: {MODS[1]}\n")
 
             while not MODS or MODS == prev_mods:
                 print("light.gg has not updated yet... Waiting 60s before trying again...\n")
@@ -315,15 +269,68 @@ async def main():
             print("Successfully obtained available mods!\n")
 
             for user in USERS:
-                print("Emptying Mod list for User: " + str(user.id) + "...")
+                print(f"Emptying Mod list for User: {str(user.id)}...")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
                 fields = checkIfNew(user, MODS[0], MODS[1])
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
+        case "prod":
+            if len(sys.argv) == 3:
+                if sys.argv[2] == "-r":
+                    runOnce = True
+            else:
+                runOnce = False
 
-            runOnce = False
+            while True:
+                # Can now run immediately at reset, due to the program waiting
+                # 60 seconds if light.gg has not updated
+
+                # Store yesterday's Mods
+                if not runOnce:
+                    prev_mods = await getMods()
+                    print(f"Previous Weapon Mods: {prev_mods[0]}\n")
+                    print(f"Previous Armor Mods: {prev_mods[1]}\n")
+                    print("Waiting until next Daily Reset...")
+                    await asyncio.sleep(seconds_until(19,5))
+                else:
+                    prev_mods = [[],[]]
+
+                print("Running script...\n")
+
+                MODS = await getMods()
+                print(f"Weapon Mods: {MODS[0]}\n")
+                print(f"Armor Mods: {MODS[1]}\n")
+
+                while not MODS or MODS == prev_mods:
+                    if increment == 10:
+                        for user in USERS:
+                            await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
+
+                    print("light.gg has not updated yet... Waiting 60s before trying again...\n")
+                    await asyncio.sleep(60)
+                    MODS = await getMods()
+                    print(MODS, prev_mods)
+                    increment = increment + 1
+
+                print("Successfully obtained available mods!\n")
+
+                for user in USERS:
+                    print(f"Emptying Mod list for User: {str(user.id)}...")
+                    user.missingWeaponMods = []
+                    user.missingArmorMods = []
+
+                    fields = checkIfNew(user, MODS[0], MODS[1])
+
+                    await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
+
+                runOnce = False
+        case "annoy":
+            print(f"Annoying Sully with message...\n")
+            await send_embed_msg(sully.id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
+        case _:
+            print("You input the wrong argument. Please try again.")
 
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
@@ -338,7 +345,7 @@ def seconds_until(hours, minutes):
 # What does the bot do as soon as it is ready?    
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}')
+    print(f'We have logged in as {client.user}\n')
 
     await main()
     
