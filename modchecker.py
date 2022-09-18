@@ -28,7 +28,7 @@ class MessageField:
 # and made to be done from a "server" rather than my RPi locally
 me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
 jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
-sully = User(843589494338617354, "", [], [], False, False, False)
+sully = User(900034634962829392, "", [], [], False, False, False)
 
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
@@ -269,6 +269,7 @@ async def main():
 
         for user in USERS:
             print(f"Emptying Mod list for User: {str(user.id)}...")
+            user.hasDeleted = False
             user.missingWeaponMods = []
             user.missingArmorMods = []
 
