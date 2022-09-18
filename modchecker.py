@@ -95,7 +95,7 @@ async def on_message(message):
     # If it is sent in a DM do stuff
     if isinstance(message.channel,discord.DMChannel):
         print(f"Received a message from a user with missing mods: {message.author}...\n")
-        print(message.content)
+        print(f"{message.content}\n")
 
         if message.content.lower() in ["!help", "!h"]:
             await send_embed_msg(message.author.id, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS)
@@ -122,7 +122,7 @@ async def on_message(message):
 # async function to send the message to each user
 async def send_msg(id, message):
     target = await client.fetch_user(id)
-    print(f"Messaging User: {target}")
+    print(f"Messaging User: {target} with '{message}'...\n")
     channel = await client.create_dm(target)
 
     await channel.send(message)
@@ -268,7 +268,7 @@ async def main():
         print("Successfully obtained available mods!\n")
 
         for user in USERS:
-            print(f"Emptying Mod list for User: {str(user.id)}...")
+            print(f"Emptying Mod list for User: {str(user.id)}...\n")
             user.hasDeleted = False
             user.missingWeaponMods = []
             user.missingArmorMods = []
@@ -317,7 +317,7 @@ async def main():
             print("Successfully obtained available mods!\n")
 
             for user in USERS:
-                print(f"Emptying Mod list for User: {str(user.id)}...")
+                print(f"Emptying Mod list for User: {str(user.id)}...\n")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
@@ -343,7 +343,7 @@ def seconds_until(hours, minutes):
 # What does the bot do as soon as it is ready?    
 @client.event
 async def on_ready():
-    print(f'We have logged in as {client.user}\n')
+    print(f'\nWe have logged in as {client.user}\n')
 
     await main()
     
