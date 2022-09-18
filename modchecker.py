@@ -2,6 +2,7 @@ import requests
 import discord
 import datetime
 import asyncio
+import random
 from bs4 import BeautifulSoup
 from discord.ext import tasks
 from datetime import date
@@ -94,9 +95,12 @@ async def on_message(message):
     
     # If it is sent in a DM do stuff
     if isinstance(message.channel,discord.DMChannel):
-        print(f"Received a message from a user with missing mods: {message.author}...\n")
+        # Let me know a user sent a message and print the content
+        print(f"Received a message from a user: {message.author}...\n")
         print(f"{message.content}\n")
 
+        # If the user runs the help command send the embeded message with the
+        # list of all available commands at the moment
         if message.content.lower() in ["!help", "!h"]:
             await send_embed_msg(message.author.id, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS)
 
@@ -104,8 +108,8 @@ async def on_message(message):
         for user in USERS:
             # Once matched check if the User even has missing mods
             if message.author.id == user.id and user.hasMissingMods:
-                # If the user replies with yes delete the new mods from the list
-                # Otherwise just reply no
+                # If the user has missing mods, wait for the delete command
+                # and remove the mods from the users list
                 if message.content.lower() in ["!deletemods", "!dm"] and not user.hasDeleted:
                     await send_msg(user.id, "Okay, I will remove those mods from your list!")
                     deleteMods(user)
@@ -170,8 +174,12 @@ def checkIfNew(user, weaponmods, armormods):
         f.close()
 
     if len(user.missingWeaponMods) == 0 and len(user.missingArmorMods) == 0:
-        weapon_field.value = "No New Mods Today!"
-        armor_field.value = "No New Mods Today!"
+        if random.randint(0,9) == 0:
+            weapon_field.value = "Ain't got shit!"
+            armor_field.value = "Bitch better have my mods tomorrow!"
+        else:
+            weapon_field.value = "No New Mods Today!"
+            armor_field.value = "No New Mods Today!"
         user.hasMissingMods = False
         return [weapon_field, armor_field]
 
