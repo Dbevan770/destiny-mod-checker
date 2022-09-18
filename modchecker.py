@@ -292,6 +292,10 @@ async def main():
                 prev_mods = await getMods()
                 print(f"Previous Weapon Mods: {prev_mods[0]}\n")
                 print(f"Previous Armor Mods: {prev_mods[1]}\n")
+                await asyncio.sleep(seconds_until(18,0))
+                for user in USERS:
+                    if user.hasMissingMods and not user.hasDeleted:
+                        await send_msg(user.id, "Hello Guardian! The daily reset will happen in one hour and you haven't told me you purchased your mods yet. I'm just checking on you to make sure you haven't forgotten!")
                 print("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(19,5))
             else:
