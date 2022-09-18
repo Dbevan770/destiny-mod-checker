@@ -13,7 +13,6 @@ Fusion Rifle Scavenger
 Striking Light
 Heal Thyself
 Firepower
-Blast Radius
 Charged Up
 Warmind's Light
 Strength of Rasputin
@@ -30,7 +29,6 @@ Kindling the Flame
 Precision Charge
 Energy Converter
 Charge Harvester
-Elemental Armaments
 Font of Wisdom
 Well of Ions
 Seeking Wells
