@@ -3,6 +3,7 @@ import discord
 import datetime
 import asyncio
 import random
+import json
 from bs4 import BeautifulSoup
 from discord.ext import tasks
 from datetime import date
@@ -25,12 +26,6 @@ class MessageField:
         self.name = _name
         self.value = _value
 
-# Create User objects, in the future this could be pulled from a JSON
-# and made to be done from a "server" rather than my RPi locally
-me = User(144421854629593088, "missingmods.txt", [], [], False, False, False)
-jones = User(311998237034938368, "jones_missingmods.txt", [], [], False, False, False)
-sully = User(900034634962829392, "", [], [], False, False, False)
-
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
 comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
@@ -38,7 +33,7 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 COMMANDS = [deletemods, undo, comingsoon]
 
 # Define what users to run the script with
-USERS = [me, jones]
+
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -58,6 +53,22 @@ intents = discord.Intents.default()
 intents.message_content = True
 
 client = discord.Client(intents=intents)
+
+# Create users from JSON file rather than store their details in plaintext
+def createUsers():
+    users = []
+    with open('users.json') as data_file:
+        data = json.load(data_file)
+
+    for user in data:
+        temp_usr = User(user['id'], user['modfile'], user['missingWeaponMods'], user['missingArmorMods'], user['hasMissingMods'], user['hasDeleted'], user['canUndo'])
+        users.append(temp_usr)
+
+    data_file.close()
+    return users
+
+# Store all created users for later
+USERS = createUsers()
 
 # Function to delete the Mods of the day from the Users
 # Missing Mods list.
@@ -340,7 +351,11 @@ async def main():
             runOnce = False
     elif sys.argv[1] == "annoy":
         print(f"Annoying Sully with message...\n")
-        await send_embed_msg(sully.id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
+        await send_embed_msg(USERS[2].id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
+    elif sys.argv[1] == "user-test":
+        for user in USERS:
+            print(user.id)
+            print(user.modfile)
 
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
