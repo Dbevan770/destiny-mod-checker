@@ -404,7 +404,7 @@ async def main():
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(19,5))
             else:
-                prev_info = [[],[]]
+                prev_info = [[],[], ""]
 
             log.AddLine("Running script...")
 
