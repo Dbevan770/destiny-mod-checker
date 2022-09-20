@@ -4,9 +4,10 @@ import datetime
 import asyncio
 import random
 import json
+import os
 from bs4 import BeautifulSoup
 from discord.ext import tasks
-from datetime import date
+from datetime import date, datetime
 import sys
 
 # Define the User constructor, allows the program to be more expandable
@@ -25,6 +26,17 @@ class MessageField:
     def __init__(self, _name, _value):
         self.name = _name
         self.value = _value
+
+class LogFile:
+    data = []
+    def __init__(self, _name):
+        self.name = _name
+
+    @classmethod
+    def AddLine(cls, line):
+        print(f'{line}\n')
+        LogFile.data.append(line)
+
 
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
@@ -54,6 +66,15 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
+def getQuote():
+    with open('quotes.json') as data_file:
+        data = json.load(data_file)
+
+    quote, author = random.choice(list(data.items()))
+
+    data_file.close()
+    return f"“{quote}” - {author}"
+
 # Create users from JSON file rather than store their details in plaintext
 def createUsers():
     users = []
@@ -69,6 +90,20 @@ def createUsers():
 
 # Store all created users for later
 USERS = createUsers()
+
+async def generateLogfile(name, data):
+    filepath = os.path.join('./logs/', name)
+    with open(filepath, "w") as f:
+        index = 0
+        for line in data:
+            if index != len(data) - 1:
+                f.write(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+                f.write("\n")
+                index = index + 1
+            else:
+                f.write(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+    
+    f.close()
 
 # Function to delete the Mods of the day from the Users
 # Missing Mods list.
@@ -145,12 +180,13 @@ async def send_msg(id, message):
     print("Message sent!\n")
 
 # Send an embeded message to the user
-async def send_embed_msg(id, title, desc, color, fields):
+async def send_embed_msg(id, title, desc, color, fields, log, dailyQuote):
     # Get todays date
     today = date.today()
     # Get the user data from their id
     target = await client.fetch_user(id)
-    print(f"Sending Embeded Message to user: {target}...\n")
+    #print(f"Sending Embeded Message to user: {target}...\n")
+    log.AddLine(f"Sending Embeded Message to user: {target}...")
     # Stores the DM channel for the user to send a DM
     channel = await client.create_dm(target)
 
@@ -164,12 +200,12 @@ async def send_embed_msg(id, title, desc, color, fields):
             embedMsg.add_field(name=field.name, value=field.value, inline=False)
     
     # Add footer to each embeded message
-    embedMsg.set_footer(text="All data is taken from light.gg\nTo see a list of all my commands say '!help'")
+    embedMsg.set_footer(text=f"{dailyQuote}\n\nAll data is taken from light.gg\nTo see a list of all my commands say '!help'")
 
     await channel.send(embed=embedMsg)
 
 # Check the mods for the day to see if they are in the missing mod list
-def checkIfNew(user, weaponmods, armormods):
+def checkIfNew(user, weaponmods, armormods, log):
     weapon_field = MessageField("Banshee-44 Mods", "")
     armor_field = MessageField("Ada-1 Mods", "")
     with open(user.modfile, "r") as f:
@@ -220,17 +256,18 @@ def checkIfNew(user, weaponmods, armormods):
     return [weapon_field, armor_field]
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
-async def getMods():
+async def getMods(log):
     weapon_mods = []
     armor_mods = []
 
-    page = await requestPage()
+    page = await requestPage(log)
     if page.status_code != 200:
         return [weapon_mods, armor_mods]
 
     soup = BeautifulSoup(page.content, "html.parser")
 
-    print("Getting available Mods from light.gg...\n")
+    #print("Getting available Mods from light.gg...\n")
+    log.AddLine("Getting available Mods from light.gg...")
     for weapon in soup.find_all('div', class_="weapon-mods"):
         img = weapon.find_all('img', alt=True)
         for i in range(0,4):
@@ -243,9 +280,10 @@ async def getMods():
 
     return [weapon_mods, armor_mods]
 
-async def requestPage():
+async def requestPage(log):
     page = []
     page = requests.get(URL)
+    log.AddLine(f"Response from light.gg: {requests.status_codes}")
 
     return page
 
@@ -255,46 +293,59 @@ async def main():
     global prev_mods
     global mod_desc
     increment = 0
+    log = LogFile(date.today().strftime("%Y%m%d") + ".log")
+    dailyQuote = getQuote()
 
     if sys.argv[1] == "req-test":
-        page = await requestPage()
+        page = await requestPage(log)
         soup = BeautifulSoup(page.content, "html.parser")
 
         for armor in soup.find_all('div', class_="armor-mods"):
             img = armor.find_all('img', alt=True)
             for i in range(0,4):
                 print(img[i]['alt'])
+
     elif sys.argv[1] == "embed-test":
-        await send_embed_msg(USERS[0].id)
+        await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [], log, dailyQuote)
+
     elif sys.argv[1] == "dev":
         # Store yesterday's Mods
         prev_mods = [[],[]]
 
         print(prev_mods)
 
-        print("Running script...\n")
+        #print("Running script...\n")
+        log.AddLine("Running script...")
 
-        MODS = await getMods()
-        print(f"Weapon Mods: {MODS[0]}\n")
-        print(f"Armor Mods: {MODS[1]}\n")
+        MODS = await getMods(log)
+        #print(f"Weapon Mods: {MODS[0]}\n")
+        #print(f"Armor Mods: {MODS[1]}\n")
+        log.AddLine(f"Weapon Mods: {MODS[0]}")
+        log.AddLine(f"Armor Mods: {MODS[1]}")
 
         while not MODS or MODS == prev_mods:
-            print("light.gg has not updated yet... Waiting 60s before trying again...\n")
+            #print("light.gg has not updated yet... Waiting 60s before trying again...\n")
+            log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
             await asyncio.sleep(60)
-            MODS = await getMods()
+            MODS = await getMods(log)
             print(MODS, prev_mods)
 
-        print("Successfully obtained available mods!\n")
+        #print("Successfully obtained available mods!\n")
+        log.AddLine("Successfully obtained available mods!")
 
         for user in USERS:
-            print(f"Emptying Mod list for User: {str(user.id)}...\n")
+            #print(f"Emptying Mod list for User: {str(user.id)}...\n")
+            log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
             user.hasDeleted = False
             user.missingWeaponMods = []
             user.missingArmorMods = []
 
-            fields = checkIfNew(user, MODS[0], MODS[1])
+            fields = checkIfNew(user, MODS[0], MODS[1], log)
 
-            await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
+            await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log, dailyQuote)
+
+        await generateLogfile(log.name, log.data)
+
     elif sys.argv[1] == "prod":
         if len(sys.argv) == 3:
             if sys.argv[2] == "-r":
@@ -309,59 +360,75 @@ async def main():
             # Store yesterday's Mods
             if not runOnce:
                 prev_mods = await getMods()
-                print(f"Previous Weapon Mods: {prev_mods[0]}\n")
-                print(f"Previous Armor Mods: {prev_mods[1]}\n")
+                log.AddLine(f"Previous Weapon Mods: {prev_mods[0]}\n")
+                log.AddLine(f"Previous Armor Mods: {prev_mods[1]}\n")
 
                 # Check if users have deleted their mods 1 hour before the reset.
                 await asyncio.sleep(seconds_until(18,0))
                 for user in USERS:
                     if user.hasMissingMods and not user.hasDeleted:
-                        print(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...\n")
+                        log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...\n")
                         await send_msg(user.id, "Hello Guardian! The daily reset will happen in one hour and you haven't told me you purchased your mods yet. I'm just checking on you to make sure you haven't forgotten!")
                     else:
-                        print("All mods were deleted before reset! Huzzah!\n")
+                        log.AddLine(f"User: {user.id} deleted their mods before reset! Huzzah!\n")
 
-                print("Waiting until next Daily Reset...")
+                log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(19,5))
             else:
                 prev_mods = [[],[]]
 
-            print("Running script...\n")
+            log.AddLine("Running script...\n")
 
             MODS = await getMods()
-            print(f"Weapon Mods: {MODS[0]}\n")
-            print(f"Armor Mods: {MODS[1]}\n")
+            log.AddLine(f"Weapon Mods: {MODS[0]}\n")
+            log.AddLine(f"Armor Mods: {MODS[1]}\n")
 
             while not MODS or MODS == prev_mods:
                 if increment == 10:
                     for user in USERS:
                         await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
 
-                print("light.gg has not updated yet... Waiting 60s before trying again...\n")
+                log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...\n")
                 await asyncio.sleep(60)
                 MODS = await getMods()
-                print(MODS, prev_mods)
+                log.AddLine(f"Retrieved Weapon Mods: {MODS[0]}\n")
+                log.AddLine(f"Retrieved Armor Mods: {MODS[1]}\n")
+                log.AddLine(f"Previous Weapon Mods: {prev_mods[0]}\n")
+                log.AddLine(f"Previous Armor Mods: {prev_mods[0]}\n")
                 increment = increment + 1
 
-            print("Successfully obtained available mods!\n")
-
+            log.AddLine("Successfully obtained available mods!\n")
+            
             for user in USERS:
-                print(f"Emptying Mod list for User: {str(user.id)}...\n")
+                log.AddLine(f"Emptying Mod list for User: {str(user.id)}...\n")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
                 fields = checkIfNew(user, MODS[0], MODS[1])
 
-                await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
+                await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log, dailyQuote)
 
             runOnce = False
+            await generateLogfile(log.name, log.data)
+
     elif sys.argv[1] == "annoy":
-        print(f"Annoying Sully with message...\n")
+        log.AddLine(f"Annoying Sully with message...\n")
         await send_embed_msg(USERS[2].id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
+
     elif sys.argv[1] == "user-test":
         for user in USERS:
             print(user.id)
             print(user.modfile)
+
+    elif sys.argv[1] == "log-test":
+        log.AddLine("This is a log file test.")
+        log.AddLine("If this works I should see these lines printed.")
+        log.AddLine("The log file should also be created in the logs directory.")
+        log.AddLine(f"Received message from user {USERS[0].id}")
+        await generateLogfile(log.name, log.data)
+
+    elif sys.argv[1] == "quote-test":
+        getQuote()
 
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
