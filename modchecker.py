@@ -6,8 +6,7 @@ import random
 import json
 import os
 from bs4 import BeautifulSoup
-from discord.ext import tasks
-from datetime import date, datetime
+from datetime import date
 import sys
 
 # Define the User constructor, allows the program to be more expandable
@@ -385,29 +384,29 @@ async def main():
             # Store yesterday's Mods
             if not runOnce:
                 prev_info = await getInfo(log)
-                log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
-                log.AddLine(f"Previous Armor Mods: {prev_info[1]}\n")
-                log.AddLine(f"Previous Lost Sector: {prev_info[2]}\n")
+                log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
+                log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
+                log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
 
                 # Check if users have deleted their mods 1 hour before the reset.
                 await asyncio.sleep(seconds_until(18,0))
                 for user in USERS:
                     if user.hasMissingMods and not user.hasDeleted:
-                        log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...\n")
+                        log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...")
                         await send_msg(user.id, "Hello Guardian! The daily reset will happen in one hour and you haven't told me you purchased your mods yet. I'm just checking on you to make sure you haven't forgotten!")
                     else:
-                        log.AddLine(f"User: {user.id} deleted their mods before reset! Huzzah!\n")
+                        log.AddLine(f"User: {user.id} deleted their mods before reset! Huzzah!")
 
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(19,5))
             else:
                 prev_info = [[],[]]
 
-            log.AddLine("Running script...\n")
+            log.AddLine("Running script...")
 
             INFO = await getInfo(log)
-            log.AddLine(f"Weapon Mods: {INFO[0]}\n")
-            log.AddLine(f"Armor Mods: {INFO[1]}\n")
+            log.AddLine(f"Weapon Mods: {INFO[0]}")
+            log.AddLine(f"Armor Mods: {INFO[1]}")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
 
             while not INFO or INFO == prev_info:
@@ -418,18 +417,18 @@ async def main():
                 log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...\n")
                 await asyncio.sleep(60)
                 INFO = await getInfo(log)
-                log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
-                log.AddLine(f"Retrieved Armor Mods: {INFO[1]}\n")
+                log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}")
+                log.AddLine(f"Retrieved Armor Mods: {INFO[1]}")
                 log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
-                log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
-                log.AddLine(f"Previous Armor Mods: {prev_info[1]}\n")
-                log.AddLine(f"Previous Armor Mods: {prev_info[2]}\n")
+                log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
+                log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
+                log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
                 increment = increment + 1
 
             log.AddLine("Successfully obtained available mods!\n")
             
             for user in USERS:
-                log.AddLine(f"Emptying Mod list for User: {str(user.id)}...\n")
+                log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
@@ -441,7 +440,7 @@ async def main():
             await generateLogfile(log.name, log.data)
 
     elif sys.argv[1] == "annoy":
-        log.AddLine(f"Annoying Sully with message...\n")
+        log.AddLine(f"Annoying Sully with message...")
         await send_embed_msg(USERS[2].id, "Hello Guardian!", "I noticed you still haven't gotten on to play Destiny 2. I am here to remind you that you should come check it out!", 0xa83232, [])
 
     elif sys.argv[1] == "user-test":
