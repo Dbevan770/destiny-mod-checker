@@ -43,6 +43,8 @@ lost_sector = MessageField("!lostsector", "Use this command to get more details 
 comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
 
 COMMANDS = [deletemods, undo, lost_sector, comingsoon]
+QUOTES = []
+
 
 # Define what users to run the script with
 
@@ -53,7 +55,6 @@ COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 # sending Discord messages
 prev_info = []
 log = None
-dailyQuote = None
 
 mod_desc = "It is another new day in Destiny 2! I have gone to the vendors to see if they have any of your missing Mods. Please see below for a list if there are any. I have also gone spelunking and found what today's Legendary Lost Sector is! Feel free to solo it for some awesome loot!"
 
@@ -68,13 +69,12 @@ intents.message_content = True
 
 client = discord.Client(intents=intents)
 
-def getQuote():
-    with open('quotes.json') as data_file:
-        data = json.load(data_file)
+def getQuote(quotes):
+    random_num = random.randint(0, 23)
 
-    quote, author = random.choice(list(data.items()))
+    quote = quotes[random_num][0]
+    author = quotes[random_num][1]
 
-    data_file.close()
     return f"“{quote}” - {author}"
 
 # Create users from JSON file rather than store their details in plaintext
@@ -209,7 +209,7 @@ async def send_embed_msg(id, title, desc, color, fields):
             embedMsg.add_field(name=field.name, value=field.value, inline=False)
     
     # Add footer to each embeded message
-    embedMsg.set_footer(text=f"{dailyQuote}\n\nAll data is taken from light.gg\nTo see a list of all my commands say '!help'")
+    embedMsg.set_footer(text=f"{getQuote(QUOTES)}\n\nAll data is taken from light.gg\nTo see a list of all my commands say '!help'")
 
     await channel.send(embed=embedMsg)
 
@@ -318,10 +318,13 @@ async def main():
     global prev_info
     global mod_desc
     global log
-    global dailyQuote
+    global QUOTES
+    with open("quotes.json") as quote_file:
+        data = json.load(quote_file)
+    QUOTES = list(data.items())
+    quote_file.close()
     increment = 0
     log = LogFile(date.today().strftime("%Y%m%d") + ".log")
-    dailyQuote = getQuote()
 
     if sys.argv[1] == "req-test":
         page = await requestPage(log)
@@ -333,7 +336,7 @@ async def main():
                 print(img[i]['alt'])
 
     elif sys.argv[1] == "embed-test":
-        await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [], log, dailyQuote)
+        await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [])
 
     elif sys.argv[1] == "dev":
         # Store yesterday's Mods
@@ -459,7 +462,7 @@ async def main():
         await generateLogfile(log.name, log.data)
 
     elif sys.argv[1] == "quote-test":
-        getQuote()
+        print(getQuote(QUOTES))
 
     elif sys.argv[1] == "ls-test":
         page = await requestPage(log)
