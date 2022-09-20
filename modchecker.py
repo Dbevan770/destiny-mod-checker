@@ -384,7 +384,7 @@ async def main():
 
             # Store yesterday's Mods
             if not runOnce:
-                prev_info = await getInfo()
+                prev_info = await getInfo(log)
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}\n")
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}\n")
@@ -405,7 +405,7 @@ async def main():
 
             log.AddLine("Running script...\n")
 
-            INFO = await getInfo()
+            INFO = await getInfo(log)
             log.AddLine(f"Weapon Mods: {INFO[0]}\n")
             log.AddLine(f"Armor Mods: {INFO[1]}\n")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
@@ -417,7 +417,7 @@ async def main():
 
                 log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...\n")
                 await asyncio.sleep(60)
-                INFO = await getInfo()
+                INFO = await getInfo(log)
                 log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
                 log.AddLine(f"Retrieved Armor Mods: {INFO[1]}\n")
                 log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
