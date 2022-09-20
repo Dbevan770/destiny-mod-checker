@@ -1,8 +1,8 @@
 import requests
 import discord
-import datetime
 import asyncio
 import random
+import datetime
 import json
 import os
 from bs4 import BeautifulSoup
@@ -52,6 +52,8 @@ COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 # This allows me to verify that it has updated before
 # sending Discord messages
 prev_info = []
+log = None
+dailyQuote = None
 
 mod_desc = "It is another new day in Destiny 2! I have gone to the vendors to see if they have any of your missing Mods. Please see below for a list if there are any. I have also gone spelunking and found what today's Legendary Lost Sector is! Feel free to solo it for some awesome loot!"
 
@@ -101,11 +103,11 @@ async def generateLogfile(name, data):
         index = 0
         for line in data:
             if index != len(data) - 1:
-                f.write(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+                f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
                 f.write("\n")
                 index = index + 1
             else:
-                f.write(f'[{datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+                f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
     
     f.close()
 
@@ -146,8 +148,8 @@ async def on_message(message):
     # If it is sent in a DM do stuff
     if isinstance(message.channel,discord.DMChannel):
         # Let me know a user sent a message and print the content
-        print(f"Received a message from a user: {message.author}...\n")
-        print(f"{message.content}\n")
+        log.AddLine(f"Received a message from a user: {message.author}...")
+        log.AddLine(f"{message.content}")
 
         # If the user runs the help command send the embeded message with the
         # list of all available commands at the moment
@@ -179,15 +181,15 @@ async def on_message(message):
 # async function to send the message to each user
 async def send_msg(id, message):
     target = await client.fetch_user(id)
-    print(f"Messaging User: {target} with '{message}'...\n")
+    log.AddLine(f"Messaging User: {target} with '{message}'...")
     channel = await client.create_dm(target)
 
     await channel.send(message)
 
-    print("Message sent!\n")
+    log.AddLine("Message sent!")
 
 # Send an embeded message to the user
-async def send_embed_msg(id, title, desc, color, fields, log=None, dailyQuote=None):
+async def send_embed_msg(id, title, desc, color, fields):
     # Get todays date
     today = date.today()
     # Get the user data from their id
@@ -212,7 +214,7 @@ async def send_embed_msg(id, title, desc, color, fields, log=None, dailyQuote=No
     await channel.send(embed=embedMsg)
 
 # Check the mods for the day to see if they are in the missing mod list
-def checkIfNew(user, weaponmods, armormods, lostsector, log):
+def checkIfNew(user, weaponmods, armormods, lostsector):
     # Set what the names of the fields will be
     weapon_field = MessageField("Banshee-44 Mods", "")
     armor_field = MessageField("Ada-1 Mods", "")
@@ -264,16 +266,16 @@ def checkIfNew(user, weaponmods, armormods, lostsector, log):
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 # Also now looks for today's Legendary Lost Sector
-async def getInfo(log):
+async def getInfo():
     weapon_mods = []
     armor_mods = []
     lost_sector = ""
 
-    page = await requestPage(log)
+    page = await requestPage()
     if page.status_code != 200:
         return [weapon_mods, armor_mods, lost_sector]
 
-    lost_sector = await getLostSector(page, log)
+    lost_sector = await getLostSector(page)
 
     soup = BeautifulSoup(page.content, "html.parser")
 
@@ -290,7 +292,7 @@ async def getInfo(log):
 
     return [weapon_mods, armor_mods, lost_sector]
 
-async def getLostSector(page, log):
+async def getLostSector(page):
 
     log.AddLine("Getting Lost Sector Name from light.gg...")
     soup = BeautifulSoup(page.content, "html.parser")
@@ -303,10 +305,10 @@ async def getLostSector(page, log):
 
 
 
-async def requestPage(log):
+async def requestPage():
     page = []
     page = requests.get(URL)
-    log.AddLine(f"Response from light.gg: {requests.status_codes}")
+    log.AddLine(f"Response from light.gg: {page.status_code}")
 
     return page
 
@@ -315,6 +317,8 @@ async def main():
     # Ensure proper scope of this variable
     global prev_info
     global mod_desc
+    global log
+    global dailyQuote
     increment = 0
     log = LogFile(date.today().strftime("%Y%m%d") + ".log")
     dailyQuote = getQuote()
@@ -340,7 +344,7 @@ async def main():
         #print("Running script...\n")
         log.AddLine("Running script...")
 
-        INFO = await getInfo(log)
+        INFO = await getInfo()
 
         log.AddLine(f"Weapon Mods: {INFO[0]}")
         log.AddLine(f"Armor Mods: {INFO[1]}")
@@ -349,7 +353,7 @@ async def main():
         while not INFO or INFO == prev_info:
             log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
             await asyncio.sleep(60)
-            INFO = await getInfo(log)
+            INFO = await getInfo()
             log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
             log.AddLine(f"Retrieved Armor Mods: {INFO[1]}\n")
             log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
@@ -364,9 +368,9 @@ async def main():
         USERS[0].missingWeaponMods = []
         USERS[0].missingArmorMods = []
 
-        fields = checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2], log)
+        fields = checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
 
-        await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log, dailyQuote)
+        await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
         await generateLogfile(log.name, log.data)
 
@@ -383,7 +387,7 @@ async def main():
 
             # Store yesterday's Mods
             if not runOnce:
-                prev_info = await getInfo(log)
+                prev_info = await getInfo()
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
@@ -404,7 +408,7 @@ async def main():
 
             log.AddLine("Running script...")
 
-            INFO = await getInfo(log)
+            INFO = await getInfo()
             log.AddLine(f"Weapon Mods: {INFO[0]}")
             log.AddLine(f"Armor Mods: {INFO[1]}")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
@@ -414,9 +418,9 @@ async def main():
                     for user in USERS:
                         await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
 
-                log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...\n")
+                log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
                 await asyncio.sleep(60)
-                INFO = await getInfo(log)
+                INFO = await getInfo()
                 log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}")
                 log.AddLine(f"Retrieved Armor Mods: {INFO[1]}")
                 log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
@@ -425,16 +429,16 @@ async def main():
                 log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
                 increment = increment + 1
 
-            log.AddLine("Successfully obtained available mods!\n")
+            log.AddLine("Successfully obtained available mods!")
             
             for user in USERS:
                 log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
-                fields = checkIfNew(user, INFO[0], INFO[1], INFO[2], log)
+                fields = checkIfNew(user, INFO[0], INFO[1], INFO[2])
 
-                await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log, dailyQuote)
+                await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
             runOnce = False
             await generateLogfile(log.name, log.data)
