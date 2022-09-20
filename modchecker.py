@@ -387,6 +387,7 @@ async def main():
                 prev_info = await getInfo()
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}\n")
+                log.AddLine(f"Previous Lost Sector: {prev_info[2]}\n")
 
                 # Check if users have deleted their mods 1 hour before the reset.
                 await asyncio.sleep(seconds_until(18,0))
@@ -432,7 +433,7 @@ async def main():
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
-                fields = checkIfNew(user, INFO[0], INFO[1])
+                fields = checkIfNew(user, INFO[0], INFO[1], INFO[2], log)
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log, dailyQuote)
 
