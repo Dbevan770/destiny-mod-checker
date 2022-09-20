@@ -341,7 +341,6 @@ async def main():
 
         print(prev_info)
 
-        #print("Running script...\n")
         log.AddLine("Running script...")
 
         INFO = await getInfo()
