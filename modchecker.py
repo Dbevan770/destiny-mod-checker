@@ -34,8 +34,7 @@ class LogFile:
     @classmethod
     def AddLine(cls, line):
         print(f'{line}\n')
-        LogFile.data.append(line)
-
+        LogFile.data.append([datetime.datetime.now(), line])
 
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
@@ -45,9 +44,7 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 QUOTES = []
 
-
 # Define what users to run the script with
-
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -103,11 +100,11 @@ async def generateLogfile(name, data):
         index = 0
         for line in data:
             if index != len(data) - 1:
-                f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+                f.write(f'[{line[0].strftime("%Y-%m-%d %H:%M:%S")}] {line[1]}')
                 f.write("\n")
                 index = index + 1
             else:
-                f.write(f'[{datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}] {line}')
+                f.write(f'[{line[0].strftime("%Y-%m-%d %H:%M:%S")}] {line[1]}')
     
     f.close()
 
@@ -214,7 +211,7 @@ async def send_embed_msg(id, title, desc, color, fields):
     await channel.send(embed=embedMsg)
 
 # Check the mods for the day to see if they are in the missing mod list
-def checkIfNew(user, weaponmods, armormods, lostsector):
+async def checkIfNew(user, weaponmods, armormods, lostsector):
     # Set what the names of the fields will be
     weapon_field = MessageField("Banshee-44 Mods", "")
     armor_field = MessageField("Ada-1 Mods", "")
@@ -237,7 +234,7 @@ def checkIfNew(user, weaponmods, armormods, lostsector):
             weapon_field.value = "No New Mods Today!"
             armor_field.value = "No New Mods Today!"
         user.hasMissingMods = False
-        return [weapon_field, armor_field]
+        return [weapon_field, armor_field, lostsector_field]
 
     if len(user.missingWeaponMods) >= 1:
         index = 0
@@ -370,7 +367,8 @@ async def main():
         USERS[0].missingWeaponMods = []
         USERS[0].missingArmorMods = []
 
-        fields = checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
+        print("Running checkIfNew")
+        fields = await checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
 
         await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
