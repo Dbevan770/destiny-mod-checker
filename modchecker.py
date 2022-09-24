@@ -321,6 +321,7 @@ async def main():
     QUOTES = list(data.items())
     quote_file.close()
     increment = 0
+    log = None
     log = LogFile(date.today().strftime("%Y%m%d") + ".log")
 
     if sys.argv[1] == "req-test":
@@ -413,7 +414,7 @@ async def main():
             log.AddLine(f"Armor Mods: {INFO[1]}")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
 
-            while not INFO or INFO == prev_info:
+            while not INFO or (INFO[0] == prev_info[0] or INFO[1] == prev_info[1] or INFO[2] == prev_info[2]):
                 if increment == 10:
                     for user in USERS:
                         await send_msg(user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!")
@@ -426,10 +427,10 @@ async def main():
                 log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
-                log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
+                log.AddLine(f"Previous Lost Sector Mods: {prev_info[2]}")
                 increment = increment + 1
 
-            log.AddLine("Successfully obtained available mods!")
+            log.AddLine("Successfully obtained information from light.gg!")
             
             for user in USERS:
                 log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
