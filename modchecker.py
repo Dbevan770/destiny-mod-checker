@@ -210,6 +210,13 @@ async def send_embed_msg(id, title, desc, color, fields):
 
     await channel.send(embed=embedMsg)
 
+async def clearUserData(user):
+    user.missingWeaponMods = []
+    user.missingArmorMods = []
+    user.hasMissingMods = False
+    user.hasDeleted = False
+    user.canUndo = False
+
 # Check the mods for the day to see if they are in the missing mod list
 async def checkIfNew(user, weaponmods, armormods, lostsector):
     # Set what the names of the fields will be
@@ -364,9 +371,7 @@ async def main():
         log.AddLine("Successfully obtained available mods!")
 
         log.AddLine(f"Emptying Mod list for User: {str(USERS[0].id)}...")
-        USERS[0].hasDeleted = False
-        USERS[0].missingWeaponMods = []
-        USERS[0].missingArmorMods = []
+        await clearUserData(USERS[0])
 
         print("Running checkIfNew")
         fields = await checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
@@ -434,8 +439,7 @@ async def main():
             
             for user in USERS:
                 log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
-                user.missingWeaponMods = []
-                user.missingArmorMods = []
+                await clearUserData(user)
 
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
 
