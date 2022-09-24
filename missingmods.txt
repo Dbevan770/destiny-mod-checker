@@ -26,7 +26,6 @@ Warmind's Longevity
 Swift Charge
 Argent Ordnance
 Kindling the Flame
-Precision Charge
 Energy Converter
 Charge Harvester
 Font of Wisdom

@@ -436,7 +436,7 @@ async def main():
                 user.missingWeaponMods = []
                 user.missingArmorMods = []
 
-                fields = checkIfNew(user, INFO[0], INFO[1], INFO[2])
+                fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
