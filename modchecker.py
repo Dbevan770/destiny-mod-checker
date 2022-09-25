@@ -1,4 +1,5 @@
 import requests
+import cloudscraper
 import discord
 import asyncio
 import random
@@ -276,12 +277,12 @@ async def getInfo():
     lost_sector = ""
 
     page = await requestPage()
-    if page.status_code != 200:
-        return [weapon_mods, armor_mods, lost_sector]
+    #if page.status_code != 200:
+        #return [weapon_mods, armor_mods, lost_sector]
 
     lost_sector = await getLostSector(page)
 
-    soup = BeautifulSoup(page.content, "html.parser")
+    soup = BeautifulSoup(page, "html.parser")
 
     log.AddLine("Getting available Mods from light.gg...")
     for weapon in soup.find_all('div', class_="weapon-mods"):
@@ -299,7 +300,7 @@ async def getInfo():
 async def getLostSector(page):
 
     log.AddLine("Getting Lost Sector Name from light.gg...")
-    soup = BeautifulSoup(page.content, "html.parser")
+    soup = BeautifulSoup(page, "html.parser")
 
     div = soup.find("div", {'class':'legend-rewards'})
     h3 = div.findChild("h3")
@@ -311,8 +312,15 @@ async def getLostSector(page):
 
 async def requestPage():
     page = []
-    page = requests.get(URL)
-    log.AddLine(f"Response from light.gg: {page.status_code}")
+    scraper = cloudscraper.create_scraper(
+        browser={
+            'browser': 'chrome',
+            'platform': 'android',
+            'desktop': False
+        }
+    )
+    page = scraper.get(URL).text
+    log.AddLine(f"Response from light.gg: Nothing")
 
     return page
 
