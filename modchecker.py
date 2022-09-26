@@ -45,8 +45,6 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 QUOTES = []
 
-# Define what users to run the script with
-
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
 # This allows me to verify that it has updated before
@@ -397,6 +395,7 @@ async def main():
             runOnce = False
 
         while True:
+            increment = 0
             # Can now run immediately at reset, due to the program waiting
             # 60 seconds if light.gg has not updated
 
@@ -451,6 +450,8 @@ async def main():
                 await clearUserData(user)
 
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
+                if datetime.datetime.today().weekday() == 'Tuesday':
+                    fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
