@@ -277,12 +277,12 @@ async def getInfo():
     lost_sector = ""
 
     page = await requestPage()
-    #if page.status_code != 200:
-        #return [weapon_mods, armor_mods, lost_sector]
+    if page[0] != 200:
+        return [weapon_mods, armor_mods, lost_sector]
 
-    lost_sector = await getLostSector(page)
+    lost_sector = await getLostSector(page[1])
 
-    soup = BeautifulSoup(page, "html.parser")
+    soup = BeautifulSoup(page[1], "html.parser")
 
     log.AddLine("Getting available Mods from light.gg...")
     for weapon in soup.find_all('div', class_="weapon-mods"):
@@ -319,10 +319,11 @@ async def requestPage():
             'desktop': False
         }
     )
-    page = scraper.get(URL).text
-    log.AddLine(f"Response from light.gg: Nothing")
+    page = scraper.get(URL)
+    page_content = page.text
+    log.AddLine(f"Response from light.gg: {page.status_code}")
 
-    return page
+    return [page.status_code, page_content]
 
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
@@ -476,13 +477,10 @@ async def main():
         print(getQuote(QUOTES))
 
     elif sys.argv[1] == "ls-test":
-        page = await requestPage(log)
+        page = await requestPage()
         
-        print(await getLostSector(page, log))
+        print(await getLostSector(page))
     
-
-
-
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
     given_time = datetime.time(hours, minutes)
