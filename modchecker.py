@@ -44,6 +44,13 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 
 COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 QUOTES = []
+scraper = cloudscraper.create_scraper(
+        browser={
+            'browser': 'chrome',
+            'platform': 'android',
+            'desktop': False
+        }
+    )
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -284,12 +291,12 @@ async def getInfo():
 
     log.AddLine("Getting available Mods from light.gg...")
     for weapon in soup.find_all('div', class_="weapon-mods"):
-        img = weapon.find_all('img', alt=True)
+        img = weapon.find_all('img', alt=True, src=True)
         for i in range(0,4):
             weapon_mods.append(img[i]['alt'])
     
     for armor in soup.find_all('div', class_="armor-mods"):
-        img = armor.find_all('img', alt=True)
+        img = armor.find_all('img', alt=True, src=True)
         for i in range(0,4):
             armor_mods.append(img[i]['alt'])
 
@@ -310,13 +317,6 @@ async def getLostSector(page):
 
 async def requestPage():
     page = []
-    scraper = cloudscraper.create_scraper(
-        browser={
-            'browser': 'chrome',
-            'platform': 'android',
-            'desktop': False
-        }
-    )
     page = scraper.get(URL)
     page_content = page.text
     log.AddLine(f"Response from light.gg: {page.status_code}")
