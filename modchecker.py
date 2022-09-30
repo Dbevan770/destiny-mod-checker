@@ -44,13 +44,6 @@ comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep a
 
 COMMANDS = [deletemods, undo, lost_sector, comingsoon]
 QUOTES = []
-scraper = cloudscraper.create_scraper(
-        browser={
-            'browser': 'chrome',
-            'platform': 'android',
-            'desktop': False
-        }
-    )
 
 # Globally declare lists to store the previous days Mods
 # Due to Light.gg ocassionally not updating right away
@@ -317,11 +310,21 @@ async def getLostSector(page):
 
 async def requestPage():
     page = []
-    page = scraper.get(URL)
-    page_content = page.text
-    log.AddLine(f"Response from light.gg: {page.status_code}")
-
-    return [page.status_code, page_content]
+    try:
+        scraper = cloudscraper.create_scraper(
+            browser={
+                'browser': 'chrome',
+                'platform': 'android',
+                'desktop': False
+            }
+        )
+        page = scraper.get(URL)
+        page_content = page.text
+        log.AddLine(f"Response from light.gg: {page.status_code}")
+        return [page.status_code, page_content]
+    except Exception as e:
+        log.AddLine(f"Request to light.gg failed on {e}, retrying...")
+        return page.status_code
 
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
