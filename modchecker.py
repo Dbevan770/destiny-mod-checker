@@ -397,10 +397,10 @@ async def main():
         await generateLogfile(log.name, log.data)
 
     elif sys.argv[1] == "prod":
-        if len(sys.argv) == 4:
+        if len(sys.argv) > 3:
             if sys.argv[2] == "-r":
                 runOnce = True
-                prev_info = sys.argv[3]
+                prev_info = list(sys.argv[3], sys.argv[4], sys.argv[5])
         elif len(sys.argv) == 3:
             if sys.argv[2] == "-r":
                 runOnce = True
