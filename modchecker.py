@@ -494,6 +494,10 @@ async def main():
         page = await requestPage()
         
         print(await getLostSector(page))
+
+    elif sys.argv[1] == "message-users":
+        for user in USERS:
+            await send_msg(user.id, sys.argv[2])
     
 # Function that pauses execution of the main loop until a certain time day
 def seconds_until(hours, minutes):
