@@ -280,6 +280,9 @@ async def getInfo():
 
     lost_sector = await getLostSector(page[1])
 
+    if lost_sector == "":
+        return [weapon_mods, armor_mods, lost_sector]
+
     soup = BeautifulSoup(page[1], "html.parser")
 
     log.AddLine("Getting available Mods from light.gg...")
@@ -301,11 +304,12 @@ async def getLostSector(page):
     soup = BeautifulSoup(page, "html.parser")
 
     div = soup.find("div", {'class':'legend-rewards'})
-    h3 = div.findChild("h3")
-    ls = h3.findAll(text=True)
-
-    return ls[0]
-
+    if div == None:
+        return ""
+    else:
+        h3 = div.findChild("h3")
+        ls = h3.findAll(text=True)
+        return ls[0]
 
 
 async def requestPage():
@@ -383,15 +387,21 @@ async def main():
         log.AddLine(f"Emptying Mod list for User: {str(USERS[0].id)}...")
         await clearUserData(USERS[0])
 
-        print("Running checkIfNew")
         fields = await checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
+
+        if datetime.datetime.today().weekday() == 1:
+                    fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
         await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
         await generateLogfile(log.name, log.data)
 
     elif sys.argv[1] == "prod":
-        if len(sys.argv) == 3:
+        if len(sys.argv) == 4:
+            if sys.argv[2] == "-r":
+                runOnce = True
+                prev_info = sys.argv[3]
+        elif len(sys.argv) == 3:
             if sys.argv[2] == "-r":
                 runOnce = True
         else:
@@ -453,7 +463,7 @@ async def main():
                 await clearUserData(user)
 
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
-                if datetime.datetime.today().weekday() == 'Tuesday':
+                if datetime.datetime.today().weekday() == 1:
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
