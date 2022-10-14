@@ -1,4 +1,3 @@
-import requests
 import cloudscraper
 import discord
 import asyncio
@@ -313,22 +312,20 @@ async def getLostSector(page):
 
 
 async def requestPage():
-    page = []
-    try:
-        scraper = cloudscraper.create_scraper(
-            browser={
-                'browser': 'chrome',
-                'platform': 'android',
-                'desktop': False
-            }
-        )
-        page = scraper.get(URL)
-        page_content = page.text
-        log.AddLine(f"Response from light.gg: {page.status_code}")
-        return [page.status_code, page_content]
-    except Exception as e:
-        log.AddLine(f"Request to light.gg failed on {e}, retrying...")
+    scraper = cloudscraper.create_scraper(
+        browser={
+            'browser': 'chrome',
+            'platform': 'android',
+            'desktop': False
+        }
+    )
+    page = scraper.get(URL)
+    page_content = page.text
+    log.AddLine(f"Response from light.gg: {page.status_code}")
+    if page.status_code != 200:
         return page.status_code
+    else:
+        return [page.status_code, page_content]
 
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
