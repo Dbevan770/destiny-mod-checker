@@ -1,17 +1,11 @@
-Fusion Rifle Ammo Finder
 Linear Fusion Rifle Ammo Finder
 Rocket Launcher Ammo Finder
-Linear Fusion Rifle Targeting
 Machine Gun Targeting
-Rocket Launcher Loader
 Sidearm Dexterity
 Hand Cannon Reserves
-Rocket Launcher Reserves
-Unflinching Sidearm Aim
 Arrow Scavenger
 Fusion Rifle Scavenger
 Striking Light
-Heal Thyself
 Firepower
 Charged Up
 Warmind's Light
@@ -22,22 +16,16 @@ Rage of the Warmind
 Cellular Suppression
 Power of Rasputin
 Warmind's Protection
-Warmind's Longevity
-Swift Charge
 Argent Ordnance
 Kindling the Flame
 Energy Converter
 Charge Harvester
 Font of Wisdom
 Well of Ions
-Seeking Wells
 Well of Striking
 Well of Ordnance
-Elemental Shards
 Elemental Time Dilation
-Supreme Wellmaker
 Well of Restoration
-Enduring Wells
 Rapid Oracle Disruptor
 Vex Breaker
 Superstructure Striker

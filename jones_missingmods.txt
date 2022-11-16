@@ -3,7 +3,6 @@ Blast Radius
 Charged Up
 Extra Reserves
 Strength of Rasputin
-Sheltering Energy
 Burning Cells
 Cellular Suppression
 Warmind's Longevity
@@ -12,14 +11,11 @@ Energy Converter
 Charge Harvester
 Elemental Light
 Font of Wisdom
-Seeking Wells
 Well of Striking
 Bountiful Wells
 Well of Ordnance
 Elemental Time Dilation
-Supreme Wellmaker
 Well of Restoration
-Enduring Wells
 Well of Utility
 Rapid Oracle Disruptor
 Vex Breaker

@@ -426,7 +426,7 @@ async def main():
                         log.AddLine(f"User: {user.id} deleted their mods before reset! Huzzah!")
 
                 log.AddLine("Waiting until next Daily Reset...")
-                await asyncio.sleep(seconds_until(19,5))
+                await asyncio.sleep(seconds_until(18,5))
             else:
                 prev_info = [[],[], ""]
 
