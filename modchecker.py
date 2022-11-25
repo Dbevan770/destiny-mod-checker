@@ -42,6 +42,8 @@ lost_sector = MessageField("!lostsector", "Use this command to get more details 
 xur = MessageField("!xur", "Use this command to see where Xûr is this weekend!")
 comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
 
+XURLOCATION = ""
+
 COMMANDS = [deletemods, undo, lost_sector, xur, comingsoon]
 QUOTES = []
 
@@ -156,7 +158,7 @@ async def on_message(message):
             await send_embed_msg(message.author.id, "Legendary Lost Sector", "This command is only in testing. It doesn't do anything at the moment.", 0xffd700, [])
 
         if message.content.lower() in ["!xur", "!x"]:
-            await send_embed_msg(message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [MessageField("Location", "Xûr is located on Uranus nerd. Get fucked."), MessageField("Items Available", "This is currently in testing, do not be offended by the above message.")])
+            await send_embed_msg(message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [MessageField("Location", f"Xûr is located on {XURLOCATION}."), MessageField("Items Available", "This is currently in testing. Please stay tuned!")])
 
         # When a DM is received check which user it came from
         for user in USERS:
@@ -272,7 +274,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 # Also now looks for today's Legendary Lost Sector
-async def getInfo():
+async def getInfo(isWeekend):
     weapon_mods = []
     armor_mods = []
     lost_sector = ""
@@ -299,7 +301,21 @@ async def getInfo():
         for i in range(0,4):
             armor_mods.append(img[i]['alt'])
 
+    if isWeekend:
+        XURLOCATION = await getXurInfo(page[1])
+
     return [weapon_mods, armor_mods, lost_sector]
+
+async def getXurInfo(page):
+    soup = BeautifulSoup(page[1], "html.parser")
+
+    spans = soup.find_all('span', class_="map-name")
+    xur = []
+    for span in spans[5]:
+        if span.text.strip() != "":
+            xur.append(span.text)
+
+    return xur[1]
 
 async def getLostSector(page):
 
@@ -347,13 +363,21 @@ async def main():
     log = LogFile(date.today().strftime("%Y%m%d") + ".log")
 
     if sys.argv[1] == "req-test":
-        page = await requestPage(log)
-        soup = BeautifulSoup(page.content, "html.parser")
+        page = await requestPage()
+        soup = BeautifulSoup(page[1], "html.parser")
 
-        for armor in soup.find_all('div', class_="armor-mods"):
-            img = armor.find_all('img', alt=True)
-            for i in range(0,4):
-                print(img[i]['alt'])
+        spans = soup.find_all('span', class_="map-name")
+        xur = []
+        for span in spans[5]:
+            if span.text.strip() != "":
+                xur.append(span.text)
+
+        print(xur[1])
+
+        #for armor in soup.find_all('div', class_="armor-mods"):
+            #img = armor.find_all('img', alt=True)
+            #for i in range(0,4):
+                #print(img[i]['alt'])
 
     elif sys.argv[1] == "embed-test":
         await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [])
@@ -395,9 +419,10 @@ async def main():
 
         await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
-        await generateLogfile(log.name, log.data)
+        await generateLogfile(log.name + "_dev", log.data)
 
     elif sys.argv[1] == "prod":
+        isWeekend = False
         if len(sys.argv) > 3:
             if sys.argv[2] == "-r":
                 runOnce = True
@@ -419,6 +444,8 @@ async def main():
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
+                if isWeekend:
+                    log.AddLine(f"Xur Location: {prev_info[3]}")
 
                 # Check if users have deleted their mods 1 hour before the reset.
                 await asyncio.sleep(seconds_until(17,0))
@@ -436,10 +463,15 @@ async def main():
 
             log.AddLine("Running script...")
 
+            if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
+                isWeekend = True
+
             INFO = await getInfo()
             log.AddLine(f"Weapon Mods: {INFO[0]}")
             log.AddLine(f"Armor Mods: {INFO[1]}")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
+            if isWeekend:
+                log.AddLine(f"Xur's Location: {INFO[3]}")
 
             while not INFO or (INFO[0] == prev_info[0] or INFO[1] == prev_info[1] or INFO[2] == prev_info[2]):
                 if increment == 10:
@@ -467,7 +499,7 @@ async def main():
                 if datetime.datetime.today().weekday() == 1:
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
-                if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
+                if isWeekend:
                     fields.append(MessageField("It's the weekend Baby!", "Xûr has arrived to bestow upon you some more disappointing items!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
