@@ -323,7 +323,7 @@ async def requestPage():
     page_content = page.text
     log.AddLine(f"Response from light.gg: {page.status_code}")
     if page.status_code != 200:
-        return page.status_code
+        return [page.status_code, "Failed to fetch page."]
     else:
         return [page.status_code, page_content]
 

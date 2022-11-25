@@ -1,13 +1,9 @@
-Linear Fusion Rifle Ammo Finder
 Rocket Launcher Ammo Finder
-Machine Gun Targeting
 Sidearm Dexterity
-Hand Cannon Reserves
 Arrow Scavenger
 Fusion Rifle Scavenger
 Striking Light
 Firepower
-Charged Up
 Warmind's Light
 Strength of Rasputin
 Burning Cells
@@ -16,7 +12,6 @@ Rage of the Warmind
 Cellular Suppression
 Power of Rasputin
 Warmind's Protection
-Argent Ordnance
 Kindling the Flame
 Energy Converter
 Charge Harvester
