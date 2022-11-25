@@ -85,12 +85,23 @@ def getModList():
     writeMissingModList(missing_mods)
 
 # If user has 2FA prompt for code and enter it into the text field
-def twoFactorLogin(twoFactorEntry):
+def twoFactorLogin(twoFactorEntry, authType):
     twoFA = input("Enter 2FA Code: ")
 
     # Send enter key press as is more reliable than
     # click function in this instance
     twoFactorEntry.send_keys(twoFA, Keys.RETURN)
+    time.sleep(3)
+
+    if authType.lower() == "email":
+        driver.find_element(By.ID, "success_continue_btn").click()
+        time.sleep(3)
+
+    multiLog = input("Did you play Destiny 1?: ")
+
+    if multiLog.lower() in ["yes", "y"]:
+        driver.find_element(By.CLASS_NAME, "A9Xa62lt").click()
+        time.sleep(3)
 
     getModList()
 
@@ -116,10 +127,13 @@ def loginSteam():
     driver.find_element(By.ID, 'imageLogin').click()
     time.sleep(1)
 
-    # Check if two factor is enabled
-    if driver.find_element(By.ID, 'twofactorcode_entry'):
-        twoFactorLogin(driver.find_element(By.ID, 'twofactorcode_entry'))
-    else:
+    authType = input("What is your 2FA Type? (email/ phone/ none): ")
+
+    if authType.lower() == "email":
+        twoFactorLogin(driver.find_element(By.ID, 'authcode'), authType)
+    elif authType.lower() == "phone":
+        twoFactorLogin(driver.find_element(By.ID, 'twofactorcode_entry'), authType)
+    elif authType.lower() == "none":
         getModList()
 
 # Ask user for Steam user/ pass for login

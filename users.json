@@ -15,4 +15,13 @@
     "hasMissingMods": false,
     "hasDeleted": false,
     "canUndo": false
+},
+{
+    "id": 895407832583766058,
+    "modfile": "chad_missingmods.txt",
+    "missingWeaponMods": [],
+    "missingArmorMods": [],
+    "hasMissingMods": false,
+    "hasDeleted": false,
+    "canUndo": false
 }]

@@ -1,0 +1,255 @@
+Dynamo
+Bow Ammo Finder
+Fusion Rifle Ammo Finder
+Hand Cannon Ammo Finder
+Linear Fusion Rifle Ammo Finder
+Machine Gun Ammo Finder
+Rocket Launcher Ammo Finder
+Shotgun Ammo Finder
+Sidearm Ammo Finder
+Sniper Rifle Ammo Finder
+Sword Ammo Finder
+Trace Rifle Ammo Finder
+Auto Rifle Targeting
+Fusion Rifle Targeting
+Hand Cannon Targeting
+Linear Fusion Rifle Targeting
+Machine Gun Targeting
+Pulse Rifle Targeting
+Scout Rifle Targeting
+Shotgun Targeting
+Sniper Rifle Targeting
+Submachine Gun Targeting
+Power Preservation
+Glaive Ammo Finder
+Glaive Targeting
+Fastball
+Bow Reloader
+Fusion Rifle Loader
+Grenade Launcher Loader
+Hand Cannon Loader
+Linear Fusion Rifle Loader
+Machine Gun Loader
+Pulse Rifle Loader
+Rocket Launcher Loader
+Scout Rifle Loader
+Sidearm Loader
+Sniper Rifle Loader
+Submachine Gun Loader
+Trace Rifle Loader
+Auto Rifle Dexterity
+Bow Dexterity
+Fusion Rifle Dexterity
+Glaive Dexterity
+Grenade Launcher Dexterity
+Hand Cannon Dexterity
+Linear Fusion Dexterity
+Machine Gun Dexterity
+Pulse Rifle Dexterity
+Rocket Launcher Dexterity
+Scout Rifle Dexterity
+Shotgun Dexterity
+Sidearm Dexterity
+Sniper Rifle Dexterity
+Submachine Gun Dexterity
+Grenade Kickstart
+Melee Kickstart
+Glaive Loader
+Glaive Dexterity
+Stasis Resistance
+Bow Reserves
+Grenade Launcher Reserves
+Hand Cannon Reserves
+Linear Fusion Rifle Reserves
+Machine Gun Reserves
+Rocket Launcher Reserves
+Shotgun Reserves
+Sidearm Reserves
+Sniper Rifle Reserves
+Sword Reserves
+Trace Rifle Reserves
+Unflinching Auto Rifle Aim
+Unflinching Bow Aim
+Unflinching Fusion Rifle Aim
+Unflinching Grenade Launcher Aim
+Unflinching Hand Cannon Aim
+Unflinching Linear Fusion Aim
+Unflinching Machine Gun
+Unflinching Pulse Rifle Aim
+Unflinching Scout Rifle Aim
+Unflinching Shotgun Aim
+Unflinching Sidearm Aim
+Unflinching Sniper Aim
+Unflinching Submachine Gun Aim
+Unflinching Trace Rifle Aim
+Glaive Reserves
+Unflinching Glaive Aim
+Orbs of Restoration
+Arrow Scavenger
+Fusion Rifle Scavenger
+Grenade Launcher Scavenger
+Hand Cannon Scavenger
+Linear Fusion Rifle Scavenger
+Machine Gun Scavenger
+Rocket Launcher Scavenger
+Shotgun Scavenger
+Sidearm Scavenger
+Sniper Rifle Scavenger
+Sword Scavenger
+Trace Rifle Scavenger
+Fusion Rifle Holster
+Grenade Launcher Holster
+Hand Cannon Holster
+Linear Fusion Rifle Holster
+Machine Gun Holster
+Pulse Rifle Holster
+Scout Rifle Holster
+Shotgun Holster
+Sniper Rifle Holster
+Submachine Gun Holster
+Trace Rifle Holster
+Glaive Scavenger
+Glaive Holster
+Outreach
+Utility Kickstart
+Explosive Finisher
+Restorative Finisher
+Special Finisher
+Utility Finisher
+Intellect Mod
+Quick Charge
+Striking Light
+Powerful Friends
+Heal Thyself
+Firepower
+Blast Radius
+Charged Up
+Protective Light
+Extra Reserves
+Precisely Charged
+Blessing of Rasputin
+Light of the Fire
+Warmind's Light
+Grasp of the Warmind
+Modular Lightning
+Strength of Rasputin
+Sheltering Energy
+Chosen of the Warmind
+Burning Cells
+Wrath of Rasputin
+Fireteam Medic
+Rage of the Warmind
+Incinerating Light
+Cellular Suppression
+Power of Rasputin
+Warmind's Protection
+Warmind's Longevity
+Light from Darkness
+Swift Charge
+Lucent Blade
+Reactive Pulse
+Radiant Light
+Argent Ordnance
+Kindling the Flame
+Precision Charge
+Surprise Attack
+Energy Converter
+Charge Harvester
+Elemental Charge
+Elemental Armaments
+Elemental Light
+Elemental Ordnance
+Font of Might
+Font of Wisdom
+Shieldcrash Wellmaker
+Overcharge Wellmaker
+Well of Ions
+Explosive Wellmaker
+Well of Life
+Reaping Wellmaker
+Well of Tenacity
+Melee Wellmaker
+Seeking Wells
+Well of Striking
+Bountiful Wells
+Well of Ordnance
+Elemental Shards
+Elemental Time Dilation
+Supreme Wellmaker
+Well of Restoration
+Enduring Wells
+Well of Utility
+Rapid Oracle Disruptor
+Vex Breaker
+Superstructure Striker
+Aggressive Oracle Disruptor
+Vex Destroyer
+Superstructure Medic
+Precise Oracle Disruptor
+Vex Striker
+Superstructure Defender
+Anti-Oracle
+Anti-Praetorian
+Herd Thinner
+Enhanced Operator Augment
+Enhanced Scanner Augment
+Enhanced Suppressor Augment
+Enhanced Relay Defender
+Enhanced Voltaic Mote Collector
+Enhanced Resistant Tether
+Enhanced Voltaic Ammo Collector
+Relay Defender
+Voltaic Mote Collector
+Resistant Tether
+Voltaic Ammo Collector
+Riven's Curse
+Transcendent Blessing
+Taken Armaments
+Taken Invigoration
+Taken Barrier
+Taken Repurposing
+Umbral Sharpening
+Umbral Hastening
+Shocked Glyphkeeper
+Into the Light
+Smoldering Glyphkeeper
+Siphoned Glyphkeeper
+Stagnant Glyphkeeper
+Umbral Recharge
+Distorted Glyphkeeper
+Will of Light (Kinetic)
+Old Gods' Boon
+Run for Your Life
+Mortal Medicine
+Will of Light (Arc)
+Will of Light (Solar)
+Will of Light (Void)
+Will of Light (Stasis)
+Boss Spec
+Counterbalance Stock
+Major Spec
+Targeting Adjuster
+Adept Icarus Grip
+Freehand Grip
+Taken Spec
+Sprint Grip
+Quick Access Sling
+Radar Booster
+Rampage Spec
+Dragonfly Spec
+Sweaty Confetti
+Adept Impact
+Adept Stability
+Adept Range
+Adept Handling
+Adept Reload
+Adept Blast Radius
+Adept Projectile Speed
+Adept Charge Time
+Adept Mag
+Adept Targeting
+Adept Counterbalance
+Adept Big Ones Spec
+Lesser Core Harvest (Crucible)
+Greater Core Harvest (Crucible)
+Modularity (Crucible)

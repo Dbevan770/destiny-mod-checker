@@ -417,7 +417,7 @@ async def main():
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
 
                 # Check if users have deleted their mods 1 hour before the reset.
-                await asyncio.sleep(seconds_until(18,0))
+                await asyncio.sleep(seconds_until(17,0))
                 for user in USERS:
                     if user.hasMissingMods and not user.hasDeleted:
                         log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...")
