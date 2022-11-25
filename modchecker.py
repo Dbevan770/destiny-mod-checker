@@ -468,7 +468,7 @@ async def main():
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
-                    fields.append(MessageField("Xûr has arrived to bestow upon you some more disappointing items!"))
+                    fields.append(MessageField("It's the weekend Baby!", "Xûr has arrived to bestow upon you some more disappointing items!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
