@@ -39,9 +39,10 @@ class LogFile:
 deletemods = MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
 undo = MessageField("!undo", "Use this command to undo a mod deletion. (Can only be used once)")
 lost_sector = MessageField("!lostsector", "Use this command to get more details about today's Legendary Lost Sector!")
+xur = MessageField("!xur", "Use this command to see where Xûr is this weekend!")
 comingsoon = MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
 
-COMMANDS = [deletemods, undo, lost_sector, comingsoon]
+COMMANDS = [deletemods, undo, lost_sector, xur, comingsoon]
 QUOTES = []
 
 # Globally declare lists to store the previous days Mods
@@ -153,6 +154,9 @@ async def on_message(message):
 
         if message.content.lower() in ["!lostsector", "!ls"]:
             await send_embed_msg(message.author.id, "Legendary Lost Sector", "This command is only in testing. It doesn't do anything at the moment.", 0xffd700, [])
+
+        if message.content.lower() in ["!xur", "!x"]:
+            await send_embed_msg(message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [MessageField("Location", "Xûr is located on Uranus nerd. Get fucked."), MessageField("Items Available", "This is currently in testing, do not be offended by the above message.")])
 
         # When a DM is received check which user it came from
         for user in USERS:
@@ -417,7 +421,7 @@ async def main():
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
 
                 # Check if users have deleted their mods 1 hour before the reset.
-                await asyncio.sleep(seconds_until(18,0))
+                await asyncio.sleep(seconds_until(17,0))
                 for user in USERS:
                     if user.hasMissingMods and not user.hasDeleted:
                         log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...")
@@ -462,6 +466,9 @@ async def main():
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
                 if datetime.datetime.today().weekday() == 1:
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
+
+                if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
+                    fields.append(MessageField("Xûr has arrived to bestow upon you some more disappointing items!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
