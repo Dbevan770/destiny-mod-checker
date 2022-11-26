@@ -158,7 +158,7 @@ async def on_message(message):
             await send_embed_msg(message.author.id, "Legendary Lost Sector", "This command is only in testing. It doesn't do anything at the moment.", 0xffd700, [])
 
         if message.content.lower() in ["!xur", "!x"]:
-            await send_embed_msg(message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [MessageField("Location", f"Xûr is located on {XURLOCATION}."), MessageField("Items Available", "This is currently in testing. Please stay tuned!")])
+            await send_embed_msg(message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [MessageField("Location", f"Xûr is located at the {XURLOCATION}."), MessageField("Items Available", "This is currently in testing. Please stay tuned!")])
 
         # When a DM is received check which user it came from
         for user in USERS:
@@ -275,6 +275,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 # Also now looks for today's Legendary Lost Sector
 async def getInfo(isWeekend):
+    global XURLOCATION
     weapon_mods = []
     armor_mods = []
     lost_sector = ""
@@ -284,6 +285,10 @@ async def getInfo(isWeekend):
         return [weapon_mods, armor_mods, lost_sector]
 
     lost_sector = await getLostSector(page[1])
+
+    if isWeekend:
+        log.AddLine("Getting Xur location info...")
+        XURLOCATION = await getXurInfo(page[1])
 
     if lost_sector == "":
         return [weapon_mods, armor_mods, lost_sector]
@@ -302,12 +307,12 @@ async def getInfo(isWeekend):
             armor_mods.append(img[i]['alt'])
 
     if isWeekend:
-        XURLOCATION = await getXurInfo(page[1])
+        return [weapon_mods, armor_mods, lost_sector, XURLOCATION]
 
     return [weapon_mods, armor_mods, lost_sector]
 
 async def getXurInfo(page):
-    soup = BeautifulSoup(page[1], "html.parser")
+    soup = BeautifulSoup(page, "html.parser")
 
     spans = soup.find_all('span', class_="map-name")
     xur = []
@@ -315,7 +320,7 @@ async def getXurInfo(page):
         if span.text.strip() != "":
             xur.append(span.text)
 
-    return xur[1]
+    return xur[1].strip()
 
 async def getLostSector(page):
 
@@ -383,23 +388,34 @@ async def main():
         await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [])
 
     elif sys.argv[1] == "dev":
+        isWeekend = False
+
+        if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
+            isWeekend = True
+
         # Store yesterday's Mods
-        prev_info = [[],[], ""]
+        if isWeekend:
+            prev_info = [[],[],"",""]
+        else:
+            prev_info = [[],[], ""]
 
         print(prev_info)
 
         log.AddLine("Running script...")
 
-        INFO = await getInfo()
+
+        INFO = await getInfo(isWeekend)
 
         log.AddLine(f"Weapon Mods: {INFO[0]}")
         log.AddLine(f"Armor Mods: {INFO[1]}")
         log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
+        if isWeekend:
+            log.AddLine(f"Xur Location: {prev_info[3]}")
 
         while not INFO or INFO == prev_info:
             log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
             await asyncio.sleep(60)
-            INFO = await getInfo()
+            INFO = await getInfo(isWeekend)
             log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
             log.AddLine(f"Retrieved Armor Mods: {INFO[1]}\n")
             log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
@@ -417,12 +433,22 @@ async def main():
         if datetime.datetime.today().weekday() == 1:
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
+        if isWeekend:
+            fields.append(MessageField("It's the weekend Baby!", f"Xûr has arrived at the {XURLOCATION} to bestow upon you some more disappointing items!"))
+
         await send_embed_msg(USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
         await generateLogfile(log.name + "_dev", log.data)
 
     elif sys.argv[1] == "prod":
+        # Default to not the weekend
         isWeekend = False
+
+        # Check if it is the weekend
+        if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
+            isWeekend = True
+
+        # Different switched for prod environment allows for customized arguments
         if len(sys.argv) > 3:
             if sys.argv[2] == "-r":
                 runOnce = True
@@ -440,7 +466,7 @@ async def main():
 
             # Store yesterday's Mods
             if not runOnce:
-                prev_info = await getInfo()
+                prev_info = await getInfo(isWeekend)
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
                 log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
@@ -466,7 +492,7 @@ async def main():
             if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
                 isWeekend = True
 
-            INFO = await getInfo()
+            INFO = await getInfo(isWeekend)
             log.AddLine(f"Weapon Mods: {INFO[0]}")
             log.AddLine(f"Armor Mods: {INFO[1]}")
             log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
@@ -480,7 +506,7 @@ async def main():
 
                 log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
                 await asyncio.sleep(60)
-                INFO = await getInfo()
+                INFO = await getInfo(isWeekend)
                 log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}")
                 log.AddLine(f"Retrieved Armor Mods: {INFO[1]}")
                 log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
@@ -500,7 +526,7 @@ async def main():
                     fields.append(MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 if isWeekend:
-                    fields.append(MessageField("It's the weekend Baby!", "Xûr has arrived to bestow upon you some more disappointing items!"))
+                    fields.append(MessageField("It's the weekend Baby!", f"Xûr has arrived at the {XURLOCATION} to bestow upon you some more disappointing items!"))
 
                 await send_embed_msg(user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields)
 
