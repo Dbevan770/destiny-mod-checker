@@ -2,9 +2,11 @@ import cloudscraper
 import discord
 import asyncio
 import datetime
+import random
 import json
 import os
 import sys
+import getopt
 import users
 import messagefield as mf
 import botcommands as botcoms
@@ -213,9 +215,32 @@ async def main():
     increment = 0
     log = None
     log = logs.LogFile(date.today().strftime("%Y%m%d") + ".log")
+    mode = ""
+    runOnce = False
+    update = ""
+    appendUpdate = False
+    prev_info = []
+    argv = sys.argv[1:]
+
+    try:
+        options, args = getopt.getopt(argv, "m:r:u:p:", ["mode =", "runOnce =", "update =", "prev ="])
+    except:
+        print("Error Message ")
+
+    for name, value in options:
+        if name in ['-m', '--mode']:
+            mode = value
+        elif name in ['-r', '--runOnce']:
+            runOnce = value
+        elif name in ['-u', '--update']:
+            update = value
+            appendUpdate = True
+        elif name in ['-p', '--prev']:
+            prev = value
+            prev_info = list(map(str, prev.strip("[]''").split(',')))
 
     # Testing mode for page requests
-    if sys.argv[1] == "req-test":
+    if mode == "req-test":
         page = await requestPage()
         soup = BeautifulSoup(page[1], "html.parser")
 
@@ -228,11 +253,11 @@ async def main():
         print(xur[1])
 
     # Testing mode to test emebeded messages
-    elif sys.argv[1] == "embed-test":
+    elif mode == "embed-test":
         await send_embed_msg(client, USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [], log)
 
     # Bot runs in dev environment
-    elif sys.argv[1] == "dev":
+    elif mode == "dev":
         isWeekend = False
 
         # Store yesterday's Mods
@@ -280,25 +305,18 @@ async def main():
         if isWeekend:
             fields.append(mf.MessageField("It's the weekend Baby!", f"Xûr has arrived at the {XURLOCATION} to bestow upon you some more disappointing items!"))
 
+        if appendUpdate:
+            fields.append(mf.MessageField("What's New?", update))
+            appendUpdate = False
+
         await sm.send_embed_msg(client, USERS[0].id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log)
 
         await logs.generateLogfile(log.name + "_dev", log.data)
 
     # Bot runs in production environment
-    elif sys.argv[1] == "prod":
+    elif mode == "prod":
         # Default to not the weekend
         isWeekend = False
-
-        # Different switches for prod environment allows for customized arguments
-        if len(sys.argv) > 3:
-            if sys.argv[2] == "-r":
-                runOnce = True
-                prev_info = list(sys.argv[3], sys.argv[4], sys.argv[5])
-        elif len(sys.argv) == 3:
-            if sys.argv[2] == "-r":
-                runOnce = True
-        else:
-            runOnce = False
 
         while True:
             increment = 0
@@ -375,12 +393,16 @@ async def main():
                 if isWeekend:
                     fields.append(mf.MessageField("It's the weekend Baby!", f"Xûr has arrived at the {XURLOCATION} to bestow upon you some more disappointing items!"))
 
+                if appendUpdate:
+                    fields.append(mf.MessageField("What's New?", update))
+                    appendUpdate = False
+
                 await sm.send_embed_msg(client, user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log)
 
             runOnce = False
             await logs.generateLogfile(log.name, log.data)
         
-    elif sys.argv[1] == "check-admin":
+    elif mode == "check-admin":
         if users.checkIfAdmin(int(sys.argv[2])):
             print("User is an Admin!")
         else:

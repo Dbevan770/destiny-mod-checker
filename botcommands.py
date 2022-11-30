@@ -1,5 +1,6 @@
 import messagefield as mf
 import sendmessages as sm
+import deletemods as dm
 import users
 
 deletemods = mf.MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
@@ -7,9 +8,9 @@ undo = mf.MessageField("!undo", "Use this command to undo a mod deletion. (Can o
 lost_sector = mf.MessageField("!lostsector", "Use this command to get more details about today's Legendary Lost Sector!")
 xur = mf.MessageField("!xur", "Use this command to see where Xûr is this weekend!")
 comingsoon = mf.MessageField("Coming Soon!", "More commands are coming soon! Keep an eye out for more QoL changes...")
-admin = mf.MessageField("!admin", "Check if your account has admin priviledges with the Bot.")
+admin = mf.MessageField("!admin", "Check if your account has admin privileges with the Bot.")
 
-COMMANDS = [deletemods, undo, lost_sector, xur, comingsoon, admin]
+COMMANDS = [deletemods, undo, lost_sector, xur, admin, comingsoon]
 
 async def handleMessage(client, userName, userId, message, log, xurLocation, USERS):
     # If the user runs the help command send the embeded message with the
@@ -34,6 +35,12 @@ async def handleMessage(client, userName, userId, message, log, xurLocation, USE
         else:
             log.AddLine(f"Error fetching Admin status for User: {userName} ID: {userId}")
             await sm.send_msg(client, userId, "Failed to fetch Admin status. If this error persists please contact my creator.", log)
+
+    if message.content.lower() in ["!delete", "!d"]:
+        content = message.content.split("")
+
+        dm.deleteModsManually(user, modName)
+
 
     # When a DM is received check which user it came from
     for user in USERS:
