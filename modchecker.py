@@ -19,9 +19,6 @@ from deletemods import deleteMods, undoDeletion as dm
 # Globally create an empty string for Xur's location on the weekend.
 XURLOCATION = ""
 
-# Store the bots commands to be used for the !help command
-COMMANDS = [botcoms.deletemods, botcoms.undo, botcoms.lost_sector, botcoms.xur, botcoms.comingsoon, botcoms.admin]
-
 # Store Admin commands for the Bot
 ADMIN_COMMANDS = []
 
@@ -66,47 +63,7 @@ async def on_message(message):
         log.AddLine(f"Received a message from a user: {message.author.name}...")
         log.AddLine(f"{message.content}")
 
-        # If the user runs the help command send the embeded message with the
-        # list of all available commands at the moment
-        if message.content.lower() in ["!help", "!h"]:
-            await sm.send_embed_msg(client, message.author.id, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS, log)
-
-        if message.content.lower() in ["!lostsector", "!ls"]:
-            await sm.send_embed_msg(client, message.author.id, "Legendary Lost Sector", "This command is only in testing. It doesn't do anything at the moment.", 0xffd700, [], log)
-
-        if message.content.lower() in ["!xur", "!x"]:
-            await sm.send_embed_msg(client, message.author.id, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr is located at the {XURLOCATION}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
-
-        if message.content.lower() in ["!admin", "!a"]:
-            log.AddLine(f"Checking if User: {message.author.name} ID: {message.author.id} is an Admin...")
-            if users.checkIfAdmin(message.author.id):
-                log.AddLine(f"IDs Match! User: {message.author.name} ID: {message.author.id} is an Admin!")
-                await sm.send_msg(client, message.author.id, "You are an Admin! Don't do anything too crazy my friend!", log)
-            elif not users.checkIfAdmin(message.author.id):
-                log.AddLine(f"IDs Don't Match! User: {message.author.name} ID: {message.author.id} is not an Admin!")
-                await sm.send_msg(client, message.author.id, "You are not an Admin.", log)
-            else:
-                log.AddLine(f"Error fetching Admin status for User: {message.author.name} ID: {message.author.id}")
-                await sm.send_msg(client, message.author.id, "Failed to fetch Admin status. If this error persists please contact my creator.", log)
-
-        # When a DM is received check which user it came from
-        for user in USERS:
-            # Once matched check if the User even has missing mods
-            if message.author.id == user.id and user.hasMissingMods:
-                # If the user has missing mods, wait for the delete command
-                # and remove the mods from the users list
-                if message.content.lower() in ["!deletemods", "!dm"] and not user.hasDeleted:
-                    await sm.send_msg(client, user.id, "Okay, I will remove those mods from your list!", log)
-                    dm.deleteMods(user)
-                    user.hasDeleted = True
-                    await sm.send_msg(client, user.id, "Successfully removed your Mods, if this was a mistake, say '!undo'.", log)
-                    user.canUndo = True
-
-                # The user can request 1 undo
-                if message.content.lower() in ["!undo", "!u"] and user.canUndo:
-                    await sm.send_msg(client, user.id, "Okay, I will undo the previous deletion!", log)
-                    dm.undoDeletion(user)
-                    user.canUndo = False
+        await botcoms.handleMessage(client, message.author.name, message.author.id, message, log, XURLOCATION, USERS)
 
 # Check the mods for the day to see if they are in the missing mod list
 async def checkIfNew(user, weaponmods, armormods, lostsector):

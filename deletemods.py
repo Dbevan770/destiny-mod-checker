@@ -23,3 +23,17 @@ def undoDeletion(user):
         for mod in user.missingArmorMods:
             f.write("\n")
             f.write(mod)
+
+# Allows the user to manually delete a Mod by providing the name of it
+def deleteModsManually(user, modName):
+    with open("./modfiles/" + user.modfile, "r") as f:
+        lines = f.readlines()
+    
+    with open("./modfiles/" + user.modfile, "w") as f:
+        for line in lines:
+            if line.strip("\n") == modName:
+                continue
+            else:
+                f.write(line)
+
+    f.close()
