@@ -1,5 +1,6 @@
 /logs
 users.json
+admins.json
 .env
 
 # Byte-compiled / optimized / DLL files

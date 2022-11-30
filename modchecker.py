@@ -20,7 +20,7 @@ from deletemods import deleteMods, undoDeletion as dm
 XURLOCATION = ""
 
 # Store the bots commands to be used for the !help command
-COMMANDS = [botcoms.deletemods, botcoms.undo, botcoms.lost_sector, botcoms.xur, botcoms.comingsoon]
+COMMANDS = [botcoms.deletemods, botcoms.undo, botcoms.lost_sector, botcoms.xur, botcoms.comingsoon, botcoms.admin]
 
 # Store Admin commands for the Bot
 ADMIN_COMMANDS = []
@@ -114,7 +114,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
     weapon_field = mf.MessageField("Banshee-44 Mods", "")
     armor_field = mf.MessageField("Ada-1 Mods", "")
     lostsector_field = mf.MessageField("Legendary Lost Sector", lostsector)
-    with open(user.modfile, "r") as f:
+    with open("./modfiles/" + user.modfile, "r") as f:
         for line in f:
             line = line.strip()
             if line in weaponmods:
