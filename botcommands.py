@@ -11,7 +11,7 @@ admin = mf.MessageField("!admin", "Check if your account has admin priviledges w
 
 COMMANDS = [deletemods, undo, lost_sector, xur, comingsoon, admin]
 
-async def handleMessage(client, userName, userId, message, log, xurLocation, users):
+async def handleMessage(client, userName, userId, message, log, xurLocation, USERS):
     # If the user runs the help command send the embeded message with the
     # list of all available commands at the moment
     if message.content.lower() in ["!help", "!h"]:
@@ -36,7 +36,7 @@ async def handleMessage(client, userName, userId, message, log, xurLocation, use
             await sm.send_msg(client, userId, "Failed to fetch Admin status. If this error persists please contact my creator.", log)
 
     # When a DM is received check which user it came from
-    for user in users:
+    for user in USERS:
         # Once matched check if the User even has missing mods
         if userId == user.id and user.hasMissingMods:
             # If the user has missing mods, wait for the delete command
