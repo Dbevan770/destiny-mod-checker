@@ -272,6 +272,14 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
     user.hasMissingMods = True
     return [weapon_field, armor_field, lostsector_field]
 
+async def checkIsWeekend():
+    if datetime.datetime.today().weekday() >= 4 and datetime.datetime.today().weekday() <= 6:
+        print("It's the weekend!")
+        return True
+    else:
+        print("Another day in the office...")
+        return False
+
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 # Also now looks for today's Legendary Lost Sector
 async def getInfo(isWeekend):
@@ -375,14 +383,9 @@ async def main():
         xur = []
         for span in spans[5]:
             if span.text.strip() != "":
-                xur.append(span.text)
+                xur.append(span.text.strip())
 
         print(xur[1])
-
-        #for armor in soup.find_all('div', class_="armor-mods"):
-            #img = armor.find_all('img', alt=True)
-            #for i in range(0,4):
-                #print(img[i]['alt'])
 
     elif sys.argv[1] == "embed-test":
         await send_embed_msg(USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [])
@@ -390,10 +393,9 @@ async def main():
     elif sys.argv[1] == "dev":
         isWeekend = False
 
-        if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
-            isWeekend = True
-
         # Store yesterday's Mods
+        isWeekend = await checkIsWeekend()
+
         if isWeekend:
             prev_info = [[],[],"",""]
         else:
@@ -444,10 +446,6 @@ async def main():
         # Default to not the weekend
         isWeekend = False
 
-        # Check if it is the weekend
-        if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
-            isWeekend = True
-
         # Different switched for prod environment allows for customized arguments
         if len(sys.argv) > 3:
             if sys.argv[2] == "-r":
@@ -465,6 +463,8 @@ async def main():
             # 60 seconds if light.gg has not updated
 
             # Store yesterday's Mods
+            isWeekend = await checkIsWeekend()
+
             if not runOnce:
                 prev_info = await getInfo(isWeekend)
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
@@ -489,8 +489,7 @@ async def main():
 
             log.AddLine("Running script...")
 
-            if datetime.datetime.today().weekday() >= 4 or datetime.datetime.today().weekday() <= 6:
-                isWeekend = True
+            isWeekend = await checkIsWeekend()
 
             INFO = await getInfo(isWeekend)
             log.AddLine(f"Weapon Mods: {INFO[0]}")

@@ -1,5 +1,4 @@
 Rocket Launcher Ammo Finder
-Sidearm Dexterity
 Arrow Scavenger
 Fusion Rifle Scavenger
 Striking Light
@@ -20,7 +19,6 @@ Well of Ions
 Well of Striking
 Well of Ordnance
 Elemental Time Dilation
-Well of Restoration
 Rapid Oracle Disruptor
 Vex Breaker
 Superstructure Striker
