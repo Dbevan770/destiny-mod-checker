@@ -1,6 +1,8 @@
 import messagefield as mf
 import sendmessages as sm
 import deletemods as dm
+import pagerequest as pr
+import getinfo as gi
 import users
 
 deletemods = mf.MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
@@ -12,7 +14,7 @@ admin = mf.MessageField("!admin", "Check if your account has admin privileges wi
 
 COMMANDS = [deletemods, undo, lost_sector, xur, admin, comingsoon]
 
-async def handleMessage(client, userName, userId, message, log, xurLocation, USERS):
+async def handleMessage(client, userName, userId, message, log, USERS):
     # If the user runs the help command send the embeded message with the
     # list of all available commands at the moment
     if message.content.lower() in ["!help", "!h"]:
@@ -23,12 +25,9 @@ async def handleMessage(client, userName, userId, message, log, xurLocation, USE
 
     # If the user runs the Xur command, tell them Xurs location. In the future I want to provide detailed item data as well
     if message.content.lower() in ["!xur", "!x"]:
-        # If they use the command not on the weekend respond with snarky comment
-        if xurLocation == "":
-            await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr isn't around at the moment, can I take a message? (It's not currently the weekend, check back after the Friday daily reset!).")], log)
-        # Otherwise send his location
-        else:
-            await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
+        page = await pr.requestPage(log)
+        xurLocation = await gi.getXurInfo(page[1])
+        await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
 
     # If the user runs the admin command, check if the user is an admin and respond appropriately
     if message.content.lower() in ["!admin", "!a"]:
