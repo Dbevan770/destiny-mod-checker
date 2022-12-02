@@ -36,9 +36,6 @@ log = None
 # This is the main tagline for the embeded message. Stored in a variable up here to make changing it easier
 mod_desc = "It is another new day in Destiny 2! I have gone to the vendors to see if they have any of your missing Mods. Please see below for a list if there are any. I have also gone spelunking and found what today's Legendary Lost Sector is! Feel free to solo it for some awesome loot!"
 
-# Global boolean to determine if the modchecker should run immediately one time during prod execution
-runOnce = True
-
 # Define what page we are accessing.
 URL = "https://www.light.gg/"
 
@@ -80,7 +77,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
                 user.missingWeaponMods.append(line)
             elif line in armormods:
                 user.missingArmorMods.append(line)
-           
+
     f.close()
 
     if len(user.missingWeaponMods) == 0 and len(user.missingArmorMods) == 0:
@@ -120,10 +117,17 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
 
 async def checkIsWeekend():
     if datetime.datetime.today().weekday() >= 4 and datetime.datetime.today().weekday() <= 6:
-        print("It's the weekend!")
-        return True
+	    if datetime.datetime.today().weekday() == 4:
+            if await isTimeBetween(datetime.time(18,00), datetime.time(23,59), datetime.datetime.now()):
+                log.AddLine("It's the weekend!")
+                return True
+            else:
+                return False
+        else:
+	        log.AddLine("It's the weekend!")
+	        return True
     else:
-        print("Another day in the office...")
+        log.Addline("Another day in the office...")
         return False
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
@@ -154,7 +158,7 @@ async def getInfo(isWeekend):
         img = weapon.find_all('img', alt=True, src=True)
         for i in range(0,4):
             weapon_mods.append(img[i]['alt'])
-    
+
     for armor in soup.find_all('div', class_="armor-mods"):
         img = armor.find_all('img', alt=True, src=True)
         for i in range(0,4):
@@ -205,6 +209,13 @@ async def requestPage():
         return [page.status_code, "Failed to fetch page."]
     else:
         return [page.status_code, page_content]
+
+async def isTimeBetween (startTime, endTime, nowTime):
+    if startTime < endTime:
+	return nowTime >= startTime and nowTime <= endTime
+    else:
+	return nowTime >= startTime or nowTime <= endTime
+
 
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
@@ -367,7 +378,7 @@ async def main():
             while not INFO or (INFO[0] == prev_info[0] or INFO[1] == prev_info[1] or INFO[2] == prev_info[2]):
                 if increment == 10:
                     for user in USERS:
-                        await send_msg(client, user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!", log)
+                        await sm.send_msg(client, user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!", log)
 
                 log.AddLine("light.gg has not updated yet... Waiting 60s before trying again...")
                 await asyncio.sleep(60)
