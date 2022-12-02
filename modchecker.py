@@ -118,7 +118,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
 async def checkIsWeekend():
     if datetime.datetime.today().weekday() >= 4 and datetime.datetime.today().weekday() <= 6:
         if datetime.datetime.today().weekday() == 4:
-            if await isTimeBetween(datetime.time(18,00), datetime.time(23,59), datetime.datetime.now()):
+            if await isTimeBetween(datetime.time(18,00), datetime.time(23,59), datetime.datetime.now().time()):
                 log.AddLine("It's the weekend!")
                 return True
             else:
