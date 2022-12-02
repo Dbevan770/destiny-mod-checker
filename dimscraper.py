@@ -105,6 +105,32 @@ def twoFactorLogin(twoFactorEntry, authType):
 
     getModList()
 
+def loginXbox():
+
+    # Finds the login button and activates it
+    driver.find_element(By.CSS_SELECTOR, ".fjefWfiB.dim-button").click()
+    time.sleep(1)
+
+    # Gets an array of all platform login buttons and clicks Steam
+    # None of these have their name in their classes so instead
+    # it is accessed via the index
+    btns = driver.find_elements(By.CLASS_NAME, "provider-selector-btn")
+    btns[0].click()
+    time.sleep(1)
+
+    # Find the e-mail entry field; input username; click Next
+    driver.find_element(By.ID, "i0116").send_keys(USER_NAME)
+    driver.find_element(By.ID, "idSIButton9").click()
+    time.sleep(1)
+
+    # Find the password entry field; input password; click Sign in
+    driver.find_element(By.ID, "i0118").send_keys(PASS)
+    driver.find_element(By.ID, "idSIButton9").click()
+    time.sleep(1)
+
+    # Find the authorize button and press yes
+    driver.find_element(By.ID, "idBtn_Accept").click()
+    time.sleep(1)
 
 def loginSteam():
 
@@ -136,9 +162,28 @@ def loginSteam():
     elif authType.lower() == "none":
         getModList()
 
+def getUserPlatform():
+    userPlatform = input("Enter what platform you play on((S)team/ (X)box/ (P)laystaion): ")
+
+    return userPlatform.lower()
+
 # Ask user for Steam user/ pass for login
-USER_NAME = input("Enter your Steam username: ")
-PASS = getpass("Enter your Steam password: ")
+USER_PLATFORM = getUserPlatform()
+plat_index = 0
+if USER_PLATFORM in ['s', 'steam']:
+    USER_NAME = input("Enter your Steam username: ")
+    PASS = getpass("Enter your Steam password: ")
+    plat_index = 0
+elif USER_PLATFORM in ['x', 'xbox']:
+    USER_NAME = input("Enter your Xbox username: ")
+    PASS = getpass("Enter your Xbox password: ")
+    plat_index = 1
+elif USER_PLATFORM in ['p', 'playstation']:
+    USER_NAME = input("Enter your Playstation username: ")
+    PASS = getpass("Enter your Playstation password: ")
+    plat_index = 2
+else:
+    print("Invalid platform selected...")
 
 # Store reference to the web browser instance
 driver = launchBrowser()
@@ -147,6 +192,11 @@ time.sleep(3)
 
 # If login is necessary begin login process otherwise skip to finding mods
 if driver.find_element(By.CSS_SELECTOR, ".fjefWfiB.dim-button"):
-    loginSteam()
+    if plat_index == 0:
+        loginSteam()
+    elif plat_index == 1:
+        loginXbox()
+    elif plat_index == 2:
+        loginPlaystation()
 else:
     getModList()

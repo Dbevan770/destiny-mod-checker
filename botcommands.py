@@ -21,9 +21,16 @@ async def handleMessage(client, userName, userId, message, log, xurLocation, USE
     if message.content.lower() in ["!lostsector", "!ls"]:
         await sm.send_embed_msg(client, userId, "Legendary Lost Sector", "This command is only in testing. It doesn't do anything at the moment.", 0xffd700, [], log)
 
+    # If the user runs the Xur command, tell them Xurs location. In the future I want to provide detailed item data as well
     if message.content.lower() in ["!xur", "!x"]:
-        await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
+        # If they use the command not on the weekend respond with snarky comment
+        if xurLocation == "":
+            await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr isn't around at the moment, can I take a message? (It's not currently the weekend, check back after the Friday daily reset!).")], log)
+        # Otherwise send his location
+        else:
+            await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0xffd700, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
 
+    # If the user runs the admin command, check if the user is an admin and respond appropriately
     if message.content.lower() in ["!admin", "!a"]:
         log.AddLine(f"Checking if User: {userName} ID: {userId} is an Admin...")
         if users.checkIfAdmin(userId):
@@ -36,6 +43,7 @@ async def handleMessage(client, userName, userId, message, log, xurLocation, USE
             log.AddLine(f"Error fetching Admin status for User: {userName} ID: {userId}")
             await sm.send_msg(client, userId, "Failed to fetch Admin status. If this error persists please contact my creator.", log)
 
+    # Currently in testing: User sends name of a mod and manually deletes it
     if message.content.lower() in ["!delete", "!d"]:
         content = message.content.split("")
 
