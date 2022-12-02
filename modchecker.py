@@ -117,17 +117,17 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
 
 async def checkIsWeekend():
     if datetime.datetime.today().weekday() >= 4 and datetime.datetime.today().weekday() <= 6:
-	    if datetime.datetime.today().weekday() == 4:
+        if datetime.datetime.today().weekday() == 4:
             if await isTimeBetween(datetime.time(18,00), datetime.time(23,59), datetime.datetime.now()):
                 log.AddLine("It's the weekend!")
                 return True
             else:
                 return False
         else:
-	        log.AddLine("It's the weekend!")
-	        return True
+            log.AddLine("It's the weekend!")
+            return True
     else:
-        log.Addline("Another day in the office...")
+        log.AddLine("Another day in the office...")
         return False
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
@@ -212,9 +212,9 @@ async def requestPage():
 
 async def isTimeBetween (startTime, endTime, nowTime):
     if startTime < endTime:
-	return nowTime >= startTime and nowTime <= endTime
+	    return nowTime >= startTime and nowTime <= endTime
     else:
-	return nowTime >= startTime or nowTime <= endTime
+	    return nowTime >= startTime or nowTime <= endTime
 
 
 # Main loop of the program, executed on a timer every 24 hours
