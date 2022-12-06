@@ -282,7 +282,7 @@ async def main():
                 prev_info = await gi.getInfo(isWeekend, log)
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
-                log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
+                #log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
                 if isWeekend:
                     log.AddLine(f"Xur Location: {prev_info[3]}")
 
@@ -298,7 +298,7 @@ async def main():
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(18,5))
             else:
-                prev_info = [[],[], ""]
+                prev_info = [[],[]]
 
             # Beginning of the execution of the Bots main focus
             log.AddLine("Running script...")
@@ -310,12 +310,12 @@ async def main():
             INFO = await gi.getInfo(isWeekend, log)
             log.AddLine(f"Weapon Mods: {INFO[0]}")
             log.AddLine(f"Armor Mods: {INFO[1]}")
-            log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
+            #log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
             if isWeekend:
                 log.AddLine(f"Xur's Location: {INFO[3]}")
 
             # Check if the data pulled back is the same as yesterday's -- if it is, wait 60 seconds to see if light.gg updates
-            while not INFO or (INFO[0] == prev_info[0] or INFO[1] == prev_info[1] or INFO[2] == prev_info[2]):
+            while not INFO or (INFO[0] == prev_info[0] or INFO[1] == prev_info[1]):
                 if increment == 10:
                     for user in USERS:
                         await sm.send_msg(client, user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!", log)
@@ -325,10 +325,10 @@ async def main():
                 INFO = await gi.getInfo(isWeekend, log)
                 log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}")
                 log.AddLine(f"Retrieved Armor Mods: {INFO[1]}")
-                log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
+                #log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
-                log.AddLine(f"Previous Lost Sector Mods: {prev_info[2]}")
+                #log.AddLine(f"Previous Lost Sector Mods: {prev_info[2]}")
                 increment = increment + 1
 
             log.AddLine("Successfully obtained information from light.gg!")
@@ -337,7 +337,7 @@ async def main():
                 log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
                 await users.clearUserData(user)
 
-                fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2])
+                fields = await checkIfNew(user, INFO[0], INFO[1])
                 if datetime.datetime.today().weekday() == 1:
                     fields.append(mf.MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
