@@ -63,11 +63,11 @@ async def on_message(message):
         await botcoms.handleMessage(client, message.author.name, message.author.id, message, log, USERS)
 
 # Check the mods for the day to see if they are in the missing mod list
-async def checkIfNew(user, weaponmods, armormods, lostsector):
+async def checkIfNew(user, weaponmods, armormods):
     # Set what the names of the fields will be
     weapon_field = mf.MessageField("Banshee-44 Mods", "")
     armor_field = mf.MessageField("Ada-1 Mods", "")
-    lostsector_field = mf.MessageField("Legendary Lost Sector", lostsector)
+    #lostsector_field = mf.MessageField("Legendary Lost Sector", lostsector)
     with open("./modfiles/" + user.modfile, "r") as f:
         for line in f:
             line = line.strip()
@@ -86,7 +86,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
             weapon_field.value = "No New Mods Today!"
             armor_field.value = "No New Mods Today!"
         user.hasMissingMods = False
-        return [weapon_field, armor_field, lostsector_field]
+        return [weapon_field, armor_field]
 
     if len(user.missingWeaponMods) >= 1:
         index = 0
@@ -111,7 +111,7 @@ async def checkIfNew(user, weaponmods, armormods, lostsector):
         armor_field.value = "No New Mods Today!"
 
     user.hasMissingMods = True
-    return [weapon_field, armor_field, lostsector_field]
+    return [weapon_field, armor_field]
 
 # Check if it is a weekend so we know to look for info on Xur
 async def checkIsWeekend():
@@ -179,16 +179,29 @@ async def main():
 
     # Testing mode for page requests
     if mode == "req-test":
-        page = await requestPage()
+        page = await pr.requestPage(log)
         soup = BeautifulSoup(page[1], "html.parser")
 
-        spans = soup.find_all('span', class_="map-name")
-        xur = []
-        for span in spans[5]:
-            if span.text.strip() != "":
-                xur.append(span.text.strip())
+        weapon_mods = []
+        armor_mods = []
 
-        print(xur[1])
+        # Get a list of the divs containing weapon mods from the page
+        for weapon in soup.find_all('div', class_="weapon-mods"):
+            # The names for the mods are stored in the alt tags for the imgs
+            imgs = weapon.find_all('img', alt=True, src=True)
+            # Iterate through all 4 imgs
+            for img in imgs:
+                weapon_mods.append(img['alt'])
+
+        # Get a list of the divs containing armor mods from the page
+        for armor in soup.find_all('div', class_="armor-mods"):
+            # The names for the mods are stored in the alt tags for the imgs
+            imgs = armor.find_all('img', alt=True, src=True)
+            # Iterate through all 4 imgs
+            for img in imgs:
+                armor_mods.append(img['alt'])
+
+        print(weapon_mods, armor_mods)
 
     # Testing mode to test emebeded messages
     elif mode == "embed-test":
@@ -202,9 +215,9 @@ async def main():
         isWeekend = await checkIsWeekend()
 
         if isWeekend:
-            prev_info = [[],[],"",""]
+            prev_info = [[],[],""]
         else:
-            prev_info = [[],[], ""]
+            prev_info = [[],[]]
 
         print(prev_info)
 
@@ -215,7 +228,7 @@ async def main():
 
         log.AddLine(f"Weapon Mods: {INFO[0]}")
         log.AddLine(f"Armor Mods: {INFO[1]}")
-        log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
+        #log.AddLine(f"Legendary Lost Sector: {INFO[2]}")
         if isWeekend:
             log.AddLine(f"Xur Location: {prev_info[3]}")
 
@@ -225,17 +238,17 @@ async def main():
             INFO = await gi.getInfo(isWeekend, log)
             log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
             log.AddLine(f"Retrieved Armor Mods: {INFO[1]}\n")
-            log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
+            #log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[2]}")
             log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
             log.AddLine(f"Previous Armor Mods: {prev_info[1]}\n")
-            log.AddLine(f"Previous Armor Mods: {prev_info[2]}\n")
+            #log.AddLine(f"Previous Armor Mods: {prev_info[2]}\n")
 
         log.AddLine("Successfully obtained available mods!")
 
         log.AddLine(f"Emptying Mod list for User: {str(USERS[0].id)}...")
         await users.clearUserData(USERS[0])
 
-        fields = await checkIfNew(USERS[0], INFO[0], INFO[1], INFO[2])
+        fields = await checkIfNew(USERS[0], INFO[0], INFO[1])
 
         if datetime.datetime.today().weekday() == 1:
                     fields.append(mf.MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))

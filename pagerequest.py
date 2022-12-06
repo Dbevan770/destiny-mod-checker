@@ -5,6 +5,8 @@ URL = "https://www.light.gg/"
 
 # Logic for sending get request of light.gg
 async def requestPage(log):
+    page = None
+    scraper = None
     # Using cloudscraper to bypass cloudflare protection on light.gg
     scraper = cloudscraper.create_scraper(
         browser={
