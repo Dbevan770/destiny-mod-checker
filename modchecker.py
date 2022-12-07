@@ -282,7 +282,7 @@ async def main():
                 prev_info = await gi.getInfo(isWeekend, log)
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[1]}")
-                #log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
+                log.AddLine(f"Previous Lost Sector: {prev_info[2]}")
                 if isWeekend:
                     log.AddLine(f"Xur Location: {prev_info[3]}")
 
@@ -298,7 +298,10 @@ async def main():
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(18,5))
             else:
-                prev_info = [[],[]]
+                if isWeekend:
+                    prev_info = [[],[],"",""]
+                else:
+                    prev_info = [[],[], ""]
 
             # Beginning of the execution of the Bots main focus
             log.AddLine("Running script...")
