@@ -8,7 +8,7 @@ async def getInfo(isWeekend, log):
     global XURLOCATION
     weapon_mods = []
     armor_mods = []
-    #lost_sector = ""
+    lost_sector = ""
 
     # Request the page content from light.gg
     page = await pr.requestPage(log)
@@ -17,11 +17,11 @@ async def getInfo(isWeekend, log):
     # get anything back. Return the same data so the page request runs
     # again
     if page[0] != 200:
-        return [weapon_mods, armor_mods] #lost_sector]
+        return [weapon_mods, armor_mods, lost_sector]
 
     # Get the lost sector info from the page
-    #log.AddLine("Getting Lost Sector Name from light.gg...")
-    #lost_sector = await getLostSector(page[1])
+    log.AddLine("Getting Lost Sector Name from light.gg...")
+    lost_sector = await getLostSector(page[1])
 
     # If it is the weekend get the Xur info from the page
     if isWeekend:
@@ -30,8 +30,8 @@ async def getInfo(isWeekend, log):
 
     # The lost sector sometimes returns blank. If this is the case
     # reattempt the request by returning the information
-    #if lost_sector == "":
-        #return [weapon_mods, armor_mods, lost_sector]
+    if lost_sector == "":
+        return [weapon_mods, armor_mods, lost_sector]
 
     # Define the beautiful soup html parser for the page
     soup = BeautifulSoup(page[1], "html.parser")
@@ -56,10 +56,10 @@ async def getInfo(isWeekend, log):
 
     # If its the weekend, we have Xur information, return it with the rest
     if isWeekend:
-        return [weapon_mods, armor_mods, XURLOCATION]
+        return [weapon_mods, armor_mods, lost_sector, XURLOCATION]
 
     # If it isn't the weekend just return the info on mods and lost sector
-    return [weapon_mods, armor_mods]
+    return [weapon_mods, armor_mods, lost_sector]
 
 # Extract the Xur info from the light.gg pull
 async def getXurInfo(page):
