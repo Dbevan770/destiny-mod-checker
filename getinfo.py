@@ -1,12 +1,56 @@
 import pagerequest as pr
 from bs4 import BeautifulSoup
+import re
+
+async def getBansheeMods(soup, log):
+    weapon_mods = []
+
+    # Get a list of the divs containing weapon mods from the page
+    for weapon in soup.find_all('div', class_="weapon-mods"):
+        # The names for the mods are stored in the alt tags for the imgs
+        imgs = weapon.find_all('img', alt=True, src=True)
+        # Iterate through all 4 imgs
+        for img in imgs:
+            weapon_mods.append(img['alt'])
+
+    return weapon_mods
+
+# Gets a list of S-Tier weapons that Banshee-44 is selling today
+async def getSTierBansheeWeapons(soup, log):
+    # Create empty array
+    good_weps = []
+
+    # Find the weapon div that contains all the weapons he is selling
+    for weapon in soup.find_all('div', class_="weapons"):
+        # Find the spans that have class names reward-<number>
+        # This is all of the weapons themselves
+        spans = weapon.find_all('span', attrs={'class' : re.compile('^rewards-*')})
+        # Inside these spans get the imgs
+        for span in spans:
+            imgs = span.find_all('img', alt=True, src=True)
+            # Create empty array to store the pair of
+            # <Weapon Name> : <Popularity>
+            img_pair = []
+            for img in imgs:
+                if not img['alt'] == "":
+                    img_pair.append(img['alt'])
+            
+            # If the weapon has a popularity check if it is S
+            # If it is, store it in the good weapons array
+            if len(img_pair) == 2:
+                if img_pair[1] == "Very Popular (S)":
+                    good_weps.append(img_pair[0])
+            else:
+                continue
+
+    return good_weps
+
 
 # Go to Light.gg and scrape the website for Mods from Banshee-44 and Ada-1
 # Also now looks for today's Legendary Lost Sector
 async def getInfo(isWeekend, log):
     # Define scope of variables
     global XURLOCATION
-    weapon_mods = []
     armor_mods = []
     lost_sector = ""
 
@@ -38,13 +82,9 @@ async def getInfo(isWeekend, log):
 
     log.AddLine("Getting available Mods from light.gg...")
 
-    # Get a list of the divs containing weapon mods from the page
-    for weapon in soup.find_all('div', class_="weapon-mods"):
-        # The names for the mods are stored in the alt tags for the imgs
-        img = weapon.find_all('img', alt=True, src=True)
-        # Iterate through all 4 imgs
-        for i in range(0,4):
-            weapon_mods.append(img[i]['alt'])
+    weapon_mods = await getBansheeMods(soup, log)
+
+    good_weapons = await getSTierBansheeWeapons(soup, log)
 
     # Get a list of the divs containing armor mods from the page
     for armor in soup.find_all('div', class_="armor-mods"):
@@ -56,10 +96,10 @@ async def getInfo(isWeekend, log):
 
     # If its the weekend, we have Xur information, return it with the rest
     if isWeekend:
-        return [weapon_mods, armor_mods, lost_sector, XURLOCATION]
+        return [weapon_mods, good_weapons, armor_mods, lost_sector, XURLOCATION]
 
     # If it isn't the weekend just return the info on mods and lost sector
-    return [weapon_mods, armor_mods, lost_sector]
+    return [weapon_mods, good_weapons, armor_mods, lost_sector]
 
 # Extract the Xur info from the light.gg pull
 async def getXurInfo(page):
@@ -77,7 +117,7 @@ async def getXurInfo(page):
         # Remove whitespace and add the remaining spans
         if span.text.strip() != "":
             xur.append(span.text)
-
+            
     # First indexed span is irrelevant, select the second instead which contains the name of the location
     if xur[1].strip() == "???":
         return "Currently Unknown try again later."
