@@ -192,16 +192,29 @@ async def main():
 
     # Testing mode for page requests
     if mode == "req-test":
-        page = await requestPage()
+        page = await pr.requestPage(log)
         soup = BeautifulSoup(page[1], "html.parser")
 
-        spans = soup.find_all('span', class_="map-name")
-        xur = []
-        for span in spans[5]:
-            if span.text.strip() != "":
-                xur.append(span.text.strip())
+        weapon_mods = []
+        armor_mods = []
 
-        print(xur[1])
+        # Get a list of the divs containing weapon mods from the page
+        for weapon in soup.find_all('div', class_="weapon-mods"):
+            # The names for the mods are stored in the alt tags for the imgs
+            imgs = weapon.find_all('img', alt=True, src=True)
+            # Iterate through all 4 imgs
+            for img in imgs:
+                weapon_mods.append(img['alt'])
+
+        # Get a list of the divs containing armor mods from the page
+        for armor in soup.find_all('div', class_="armor-mods"):
+            # The names for the mods are stored in the alt tags for the imgs
+            imgs = armor.find_all('img', alt=True, src=True)
+            # Iterate through all 4 imgs
+            for img in imgs:
+                armor_mods.append(img['alt'])
+
+        print(weapon_mods, armor_mods)
 
     # Testing mode to test emebeded messages
     elif mode == "embed-test":
@@ -302,7 +315,10 @@ async def main():
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(18,5))
             else:
-                prev_info = [[],[],[], ""]
+                if isWeekend:
+                    prev_info = [[],[],[],"",""]
+                else:
+                    prev_info = [[],[],[], ""]
 
             # Beginning of the execution of the Bots main focus
             log.AddLine("Running script...")
