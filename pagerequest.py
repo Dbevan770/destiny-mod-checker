@@ -22,7 +22,7 @@ async def requestPage(log):
             )
             # Get request
             page = scraper.get(URL)
-            log.AddLine("Response from light.gg: {page.status_code}")
+            log.AddLine(f"Response from light.gg: {page.status_code}")
             # Return an array containing the GET response code and the content itself
             return [page.status_code, page.text]
         except Exception as e:

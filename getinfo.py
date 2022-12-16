@@ -109,6 +109,7 @@ async def getXurInfo(page):
     # Xur's location info is stored in a span with a class of map-name
     # This class applies to a lot of things
     spans = soup.find_all('span', class_="map-name")
+
     # Initialize an array to store the spans
     xur = []
 
@@ -121,11 +122,13 @@ async def getXurInfo(page):
     # First indexed span is irrelevant, select the second instead which contains the name of the location
     try:
         xurLocation = xur[1]
+        xurLocation = xurLocation.strip()
     except:
         xurLocation = "???"
         log.AddLine("Xur Location currently unknown, try again later.")
-        return "Currently Unknown try again later."
+        return xurLocation
 
+    log.AddLine("Successfully retrieved Xur's Location")
     return xur[1].strip()
 
 # Extract current legendary lost sector information
