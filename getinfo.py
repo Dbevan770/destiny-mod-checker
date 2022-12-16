@@ -119,10 +119,14 @@ async def getXurInfo(page):
             xur.append(span.text)
             
     # First indexed span is irrelevant, select the second instead which contains the name of the location
-    if xur[1].strip() == "???":
+    try:
+        xurLocation = xur[1]
+    except:
+        xurLocation = "???"
+        log.AddLine("Xur Location currently unknown, try again later.")
         return "Currently Unknown try again later."
-    else:
-        return xur[1].strip()
+
+    return xur[1].strip()
 
 # Extract current legendary lost sector information
 async def getLostSector(page):

@@ -55,7 +55,6 @@ Melee Kickstart
 Glaive Loader
 Glaive Dexterity
 Stasis Resistance
-Grenade Launcher Reserves
 Hand Cannon Reserves
 Linear Fusion Rifle Reserves
 Machine Gun Reserves
@@ -102,7 +101,6 @@ Shotgun Holster
 Sniper Rifle Holster
 Submachine Gun Holster
 Trace Rifle Holster
-Glaive Scavenger
 Outreach
 Explosive Finisher
 Restorative Finisher
@@ -128,7 +126,6 @@ Strength of Rasputin
 Chosen of the Warmind
 Burning Cells
 Wrath of Rasputin
-Fireteam Medic
 Rage of the Warmind
 Incinerating Light
 Cellular Suppression
