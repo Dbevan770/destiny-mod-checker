@@ -65,12 +65,12 @@ async def getInfo(isWeekend, log):
 
     # Get the lost sector info from the page
     log.AddLine("Getting Lost Sector Name from light.gg...")
-    lost_sector = await getLostSector(page[1])
+    lost_sector = await getLostSector(page[1], log)
 
     # If it is the weekend get the Xur info from the page
     if isWeekend:
         log.AddLine("Getting Xur location info...")
-        XURLOCATION = await getXurInfo(page[1])
+        XURLOCATION = await getXurInfo(page[1], log)
 
     # The lost sector sometimes returns blank. If this is the case
     # reattempt the request by returning the information
@@ -102,7 +102,7 @@ async def getInfo(isWeekend, log):
     return [weapon_mods, good_weapons, armor_mods, lost_sector]
 
 # Extract the Xur info from the light.gg pull
-async def getXurInfo(page):
+async def getXurInfo(page, log):
     # Define parser
     soup = BeautifulSoup(page, "html.parser")
 
@@ -132,7 +132,7 @@ async def getXurInfo(page):
     return xur[1].strip()
 
 # Extract current legendary lost sector information
-async def getLostSector(page):
+async def getLostSector(page, log):
     # Define html parser
     soup = BeautifulSoup(page, "html.parser")
 

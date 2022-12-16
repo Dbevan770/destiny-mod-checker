@@ -193,7 +193,7 @@ async def main():
     # Testing mode for page requests
     if mode == "req-test":
         page = await pr.requestPage(log)
-        test = await gi.getXurInfo(page[1])
+        test = await gi.getXurInfo(page[1], log)
 
     # Testing mode to test emebeded messages
     elif mode == "embed-test":
