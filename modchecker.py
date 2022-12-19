@@ -358,7 +358,7 @@ async def main():
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Good Weapons: {prev_info[1]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
-                log.AddLine(f"Previous Lost Sector Mods: {prev_info[3]}")
+                log.AddLine(f"Previous Legendary Lost Sector: {prev_info[3]}")
                 increment = increment + 1
 
             log.AddLine("Successfully obtained information from light.gg!")
@@ -372,7 +372,7 @@ async def main():
                     fields.append(mf.MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 if isWeekend:
-                    fields.append(mf.MessageField("It's the weekend Baby!", f"Xûr has arrived at the {XURLOCATION} to bestow upon you some more disappointing items!"))
+                    fields.append(mf.MessageField("It's the weekend Baby!", f"Xûr has arrived at the {INFO[4]} to bestow upon you some more disappointing items!"))
 
                 if appendUpdate:
                     fields.append(mf.MessageField("What's New?", update))
