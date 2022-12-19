@@ -192,8 +192,36 @@ async def main():
 
     # Testing mode for page requests
     if mode == "req-test":
+        xurWeapons = []
+        xurArmor = []
+        armorItems = []
         page = await pr.requestPage(log)
-        test = await gi.getXurInfo(page[1], log)
+
+        soup = BeautifulSoup(page[1], "html.parser")
+
+        xurBillboard = soup.find_all('div', id="xurv2-billboard")
+
+        for section in xurBillboard:
+            #xurWeapons = section.find_all('div', class_="weapons-container")
+            xurArmor = section.find_all('div', class_="armor-container")
+
+        #for weapon in xurWeapons:
+            #imgs = weapon.find_all('img', alt=True, src=True)
+            # Create empty array to store the pair of
+            # <Weapon Name> : <Popularity>
+            #img_pair = []
+            #for img in imgs:
+                #if not img['alt'] == "":
+                    #img_pair.append(img['alt'])
+
+            #print(img_pair)
+
+        for section in xurArmor:
+            armorContainer = section.find_all('div', class_="rewards-container")
+            for rewards in armorContainer:
+                clearfix = rewards.find_all('div', class_="clearfix")
+                print(clearfix)
+                print(len(clearfix))
 
     # Testing mode to test emebeded messages
     elif mode == "embed-test":

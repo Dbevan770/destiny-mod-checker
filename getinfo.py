@@ -50,7 +50,7 @@ async def getSTierBansheeWeapons(soup, log):
 # Also now looks for today's Legendary Lost Sector
 async def getInfo(isWeekend, log):
     # Define scope of variables
-    global XURLOCATION
+    XURLOCATION = ""
     armor_mods = []
     lost_sector = ""
 

@@ -27,7 +27,7 @@ async def xurCommand(client, userId, log):
         await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0x3c1361, [mf.MessageField("Location", f"Xûr is currently not around at the moment can I take a message? (If it is not the weekend, he is not around. If it is the weekend light.gg may not be working at the moment try again later)."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
     else:
         page = await pr.requestPage(log)
-        xurLocation = await gi.getXurInfo(page[1])
+        xurLocation = await gi.getXurInfo(page[1], log)
         await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0x3c1361, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
 
 async def adminCommand(client, userId, userName, log):
