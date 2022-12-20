@@ -69,33 +69,53 @@ async def checkIfNew(user, weaponmods, good_weapons, armormods, lostsector):
     good_weapon_field = mf.MessageField("Banshee-44 S-Tier Weapons", "")
     armor_field = mf.MessageField("Ada-1 Mods", "")
     lostsector_field = mf.MessageField("Legendary Lost Sector", lostsector)
+
+    # Open and read the modfile of the user to check for missing mods
     with open("./modfiles/" + user.modfile, "r") as f:
+        # Loop through each line remove whitespace
         for line in f:
             line = line.strip()
+            # If the line matches one of the daily mods add
+            # it to a list containing all missing mods available today for the
+            # user.
             if line in weaponmods:
                 user.missingWeaponMods.append(line)
             elif line in armormods:
                 user.missingArmorMods.append(line)
 
+    # Close the file, techinically unnecessary with the 'with' keyword
+    # but better safe than sorry
     f.close()
 
+    # If the vendors were not selling any mods that the user is missing
     if len(user.missingWeaponMods) == 0 and len(user.missingArmorMods) == 0:
+        # Randomly generate a number between 0 and 9
+        # if it is 0 send a funny message in place of no mods today
         if random.randint(0,9) == 0:
             weapon_field.value = "Ain't got shit!"
             armor_field.value = "Bitch better have my mods tomorrow!"
         else:
             weapon_field.value = "No New Mods Today!"
             armor_field.value = "No New Mods Today!"
+
+        # The user has no available mods from vendors today
         user.hasMissingMods = False
+        # If there are no S-Tier weapons from Banshee today don't even bother
+        # adding the field in.
         if len(good_weapons) == 0:
             return [weapon_field, armor_field, lostsector_field]
+        # If there are S-tier weapons, add each of them to field
+        # similarly to how the mods work
         else:
             for weapon in good_weapons:
                 good_weapon_field.value += weapon + "\n"
 
             return [weapon_field, good_weapon_field, armor_field, lostsector_field]
 
+    # If the user does have missing mods begin adding them to the message field
     if len(user.missingWeaponMods) >= 1:
+        # Index variable prevents newline on last mod, kind of unnecessary, don't feel
+        # like removing it
         index = 0
         for mod in weaponmods:
             if mod in user.missingWeaponMods:
@@ -103,9 +123,12 @@ async def checkIfNew(user, weaponmods, good_weapons, armormods, lostsector):
                     weapon_field.value += mod + "\n"
                 else:
                     weapon_field.value += mod
+    # If the user doesn't have missing weapon mods but does have missing armor mods
+    # this will make the banshee section read no new mods today
     elif len(user.missingWeaponMods) == 0:
         weapon_field.value = "No New Mods Today!"
 
+    # If the user has missing armor mods begin placing them in the message field
     if len(user.missingArmorMods) >= 1:
         index = 0
         for mod in armormods:
@@ -114,10 +137,14 @@ async def checkIfNew(user, weaponmods, good_weapons, armormods, lostsector):
                     armor_field.value += mod + "\n"
                 else:
                     armor_field.value += mod
+    # If the user has no missing armor mods but does have missing weapon mods
+    # this will place no new mods today in the Ada section
     elif len(user.missingArmorMods) == 0:
         armor_field.value = "No New Mods Today!"
 
+    # The user has mods available to purchase
     user.hasMissingMods = True
+    # If there are no S-tier weapons don't return the empty list
     if len(good_weapons) == 0:
         return [weapon_field, armor_field, lostsector_field]
     else:
@@ -134,14 +161,24 @@ async def checkIsWeekend(log):
         # Additional check on Fridays, Xur will not be around until the reset
         # We need to check if it is after the reset or not when run on Friday
         if datetime.datetime.today().weekday() == 4:
-            if await isTimeBetween(datetime.time(18,00), datetime.time(23,59), datetime.datetime.now().time()):
+            if await isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
                 log.AddLine("It's the weekend!")
                 return True
             else:
                 return False
+        # If it is Monday, but not after the daily reset, Xur is still around
+        # therefore it is still the weekend and we need to treat it that way
+        elif datetime.datetime.today.weekday() == 0:
+            if await isTimeBetween(datetime.time(00,00), datetime.time(18,00), datetime.datetime.now().time()):
+                log.AddLine("It's the weekend!")
+                return True
+            else:
+                return False
+        # Outside of the special conditions if it is between those times than it is the weekend
         else:
             log.AddLine("It's the weekend!")
             return True
+    # If none of this is true, it is a weekday
     else:
         log.AddLine("Another day in the office...")
         return False
@@ -228,6 +265,10 @@ async def main():
         await send_embed_msg(client, USERS[0].id, "Hello Guardian!", "This is an embeded message test!", 0x333333, [], log)
 
     # Bot runs in dev environment
+    # Main differences for Dev:
+    # - Always treats the script as if yesterday was blank
+    # - Only has one user object (myself) to avoid spamming other users
+    # - Logs are stored as dev logs instead of prod ones
     elif mode == "dev":
         isWeekend = False
 
@@ -293,9 +334,8 @@ async def main():
         isWeekend = False
 
         while True:
+            # Increment counter to count how many minutes light.gg has not updated
             increment = 0
-            # Can now run immediately at reset, due to the program waiting
-            # 60 seconds if light.gg has not updated
 
             # Check if it is the weekend for Xur info
             isWeekend = await checkIsWeekend(log)
@@ -318,9 +358,15 @@ async def main():
                         await sm.send_msg(client, user.id, "Hello Guardian! The daily reset will happen in one hour and you haven't told me you purchased your mods yet. I'm just checking on you to make sure you haven't forgotten!", log)
                     else:
                         log.AddLine(f"User: {user.id} deleted their mods before reset! Huzzah!")
-
+                
+                # Runs at 5 minutes past the daily reset
+                # After testing I found that light.gg never updates
+                # immediately at reset so there is no point in making
+                # 5 requests every time unnecessarily
                 log.AddLine("Waiting until next Daily Reset...")
                 await asyncio.sleep(seconds_until(18,5))
+            # When runOnce is true, script will set prev_info to blank so it must
+            # run regardless of whether the prev info matches today or not
             else:
                 if isWeekend:
                     prev_info = [[],[],[],"",""]
@@ -363,26 +409,38 @@ async def main():
 
             log.AddLine("Successfully obtained information from light.gg!")
             
+            # Loop through the user objects.
             for user in USERS:
+                # Clears the user data to be sure there is no data left over from
+                # previous run
                 log.AddLine(f"Emptying Mod list for User: {str(user.id)}...")
                 await users.clearUserData(user)
 
+                # Check if there are mods the user is missing available for purchase today
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2], INFO[3])
-                if datetime.datetime.today().weekday() == 1:
+                # If it's Tuesday after the daily reset than it is also the weekley reset.
+                # Add additional field to let players know.
+                if datetime.datetime.today().weekday() == 1 and isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
                     fields.append(mf.MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
+                # If it is the weekend add additional field for Xur information
                 if isWeekend:
                     fields.append(mf.MessageField("It's the weekend Baby!", f"Xûr has arrived at the {INFO[4]} to bestow upon you some more disappointing items!"))
-
+                
+                # If I added an update message in the command line add it to the embeded message
                 if appendUpdate:
                     fields.append(mf.MessageField("What's New?", update))
                     appendUpdate = False
 
+                # Send the embeded message to the user
                 await sm.send_embed_msg(client, user.id, "Hello Guardian!",  mod_desc, 0xafff5e, fields, log)
 
+            # runOnce is no longer true if it was to begin with
             runOnce = False
+            # Log file for this run is generated and saved in the logs/ folder
             await logs.generateLogfile(log.name, log.data)
-        
+    
+    # Mode to check if a user is admin with their ID
     elif mode == "check-admin":
         if users.checkIfAdmin(int(sys.argv[2])):
             print("User is an Admin!")
