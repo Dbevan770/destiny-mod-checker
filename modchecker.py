@@ -68,7 +68,7 @@ async def checkIfNew(user, weaponmods, good_weapons, armormods, lostsector):
     weapon_field = mf.MessageField("Banshee-44 Mods", "")
     good_weapon_field = mf.MessageField("Banshee-44 S-Tier Weapons", "")
     armor_field = mf.MessageField("Ada-1 Mods", "")
-    lostsector_field = mf.MessageField("Legendary Lost Sector", lostsector)
+    lostsector_field = mf.MessageField("Legendary Lost Sector", f"{lostsector[0]} -- Reward (if Solo): {lostsector[1]}")
 
     # Open and read the modfile of the user to check for missing mods
     with open("./modfiles/" + user.modfile, "r") as f:
@@ -276,9 +276,9 @@ async def main():
         isWeekend = await checkIsWeekend(log)
 
         if isWeekend:
-            prev_info = [[],[],[],"",""]
+            prev_info = [[],[],[],[],""]
         else:
-            prev_info = [[],[],[], ""]
+            prev_info = [[],[],[],[]]
 
         print(prev_info)
 
@@ -290,7 +290,8 @@ async def main():
         log.AddLine(f"Weapon Mods: {INFO[0]}")
         log.AddLine(f"Good weapons: {INFO[1]}")
         log.AddLine(f"Armor Mods: {INFO[2]}")
-        log.AddLine(f"Legendary Lost Sector: {INFO[3]}")
+        log.AddLine(f"Legendary Lost Sector: {INFO[3][0]}")
+        log.AddLine(f"Legendary Lost Secotor Reward: {INFO[3][1]}")
         if isWeekend:
             log.AddLine(f"Xur Location: {prev_info[4]}")
 
@@ -301,11 +302,13 @@ async def main():
             log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}\n")
             log.AddLine(f"Retrieved Good Weapons: {INFO[1]}\n")
             log.AddLine(f"Retrieved Armor Mods: {INFO[2]}\n")
-            log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[3]}")
+            log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[3][0]}")
+            log.AddLine(f"Retrieved Legendary Lost Secotor Reward: {INFO[3][1]}")
             log.AddLine(f"Previous Weapon Mods: {prev_info[0]}\n")
             log.AddLine(f"Previous Good Weapons: {prev_info[1]}\n")
             log.AddLine(f"Previous Armor Mods: {prev_info[2]}\n")
-            log.AddLine(f"Previous Armor Mods: {prev_info[3]}\n")
+            log.AddLine(f"Previous Legendary Lost Sector: {INFO[3][0]}")
+            log.AddLine(f"Previous Legendary Lost Secotor Reward: {INFO[3][1]}")
 
         log.AddLine("Successfully obtained available mods!")
 
@@ -346,7 +349,7 @@ async def main():
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Good Weapons: {prev_info[1]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
-                log.AddLine(f"Previous Lost Sector: {prev_info[3]}")
+                log.AddLine(f"Previous Legendary Lost Sector: {prev_info[3][0]}")
                 if isWeekend:
                     log.AddLine(f"Xur Location: {prev_info[4]}")
 
@@ -369,9 +372,9 @@ async def main():
             # run regardless of whether the prev info matches today or not
             else:
                 if isWeekend:
-                    prev_info = [[],[],[],"",""]
+                    prev_info = [[],[],[],[],""]
                 else:
-                    prev_info = [[],[],[], ""]
+                    prev_info = [[],[],[],[]]
 
             # Beginning of the execution of the Bots main focus
             log.AddLine("Running script...")
@@ -384,12 +387,12 @@ async def main():
             log.AddLine(f"Weapon Mods: {INFO[0]}")
             log.AddLine(f"Good Weapons: {INFO[1]}")
             log.AddLine(f"Armor Mods: {INFO[2]}")
-            log.AddLine(f"Legendary Lost Sector: {INFO[3]}")
+            log.AddLine(f"Legendary Lost Sector: {INFO[3][0]}")
             if isWeekend:
                 log.AddLine(f"Xur's Location: {INFO[4]}")
 
             # Check if the data pulled back is the same as yesterday's -- if it is, wait 60 seconds to see if light.gg updates
-            while not INFO or (INFO[0] == prev_info[0] or INFO[2] == prev_info[2] or INFO[3] == prev_info[3]):
+            while not INFO or (INFO[0] == prev_info[0] or INFO[2] == prev_info[2]):
                 if increment == 10:
                     for user in USERS:
                         await sm.send_msg(client, user.id, "Looks like light.gg hasn't updated for at least 10 minutes... I'm still trying and I'll let you know when it is working!", log)
@@ -400,11 +403,11 @@ async def main():
                 log.AddLine(f"Retrieved Weapon Mods: {INFO[0]}")
                 log.AddLine(f"Retrieved Good Weapons: {INFO[1]}")
                 log.AddLine(f"Retrieved Armor Mods: {INFO[2]}")
-                log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[3]}")
+                log.AddLine(f"Retrieved Legendary Lost Sector: {INFO[3][0]}")
                 log.AddLine(f"Previous Weapon Mods: {prev_info[0]}")
                 log.AddLine(f"Previous Good Weapons: {prev_info[1]}")
                 log.AddLine(f"Previous Armor Mods: {prev_info[2]}")
-                log.AddLine(f"Previous Legendary Lost Sector: {prev_info[3]}")
+                log.AddLine(f"Previous Legendary Lost Sector: {prev_info[3][0]}")
                 increment = increment + 1
 
             log.AddLine("Successfully obtained information from light.gg!")

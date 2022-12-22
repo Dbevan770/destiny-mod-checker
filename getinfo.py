@@ -1,6 +1,10 @@
 import pagerequest as pr
 from bs4 import BeautifulSoup
+from datetime import date
 import re
+
+lost_sector_rota = ['K1 Logistics (Moon)', 'K1 Crew Quarters (Moon)', 'K1 Revelation (Moon)', 'K1 Communion (Moon)', 'Bunker E15 (Europa)', 'Concealed Void (Europa)', 'Perdition (Europa)', 'Sepulcher (Throne World)', 'Extraction (Throne World)', 'Chamber of Starlight (Dreaming City)', "Aphelion's Rest (Dreaming City)"]
+rewards_rota = ['Chest', 'Head', 'Legs', 'Arms']
 
 async def getBansheeMods(soup, log):
     weapon_mods = []
@@ -52,7 +56,7 @@ async def getInfo(isWeekend, log):
     # Define scope of variables
     XURLOCATION = ""
     armor_mods = []
-    lost_sector = ""
+    lost_sector = []
 
     # Request the page content from light.gg
     page = await pr.requestPage(log)
@@ -65,17 +69,12 @@ async def getInfo(isWeekend, log):
 
     # Get the lost sector info from the page
     log.AddLine("Getting Lost Sector Name from light.gg...")
-    lost_sector = await getLostSector(page[1], log)
+    lost_sector = await getLostSectorLocal(log)
 
     # If it is the weekend get the Xur info from the page
     if isWeekend:
         log.AddLine("Getting Xur location info...")
         XURLOCATION = await getXurInfo(page[1], log)
-
-    # The lost sector sometimes returns blank. If this is the case
-    # reattempt the request by returning the information
-    if lost_sector == "":
-        return [weapon_mods, armor_mods, lost_sector]
 
     # Define the beautiful soup html parser for the page
     soup = BeautifulSoup(page[1], "html.parser")
@@ -147,3 +146,17 @@ async def getLostSector(page, log):
         h3 = div.findChild("h3")
         ls = h3.findAll(text=True)
         return ls[0]
+
+async def getLostSectorLocal(log):
+    season_start = date(2022, 12, 6)
+    todays_date = date.today()
+
+    time_between  = todays_date - season_start
+
+    currentLSRota = time_between.days % 11
+    currentRewardRota = time_between.days % 4
+
+    log.AddLine(f"Current Lost Sector in Rotation: {lost_sector_rota[currentLSRota]}")
+    log.AddLine(f"Current Reward: {rewards_rota[currentRewardRota]}")
+
+    return (lost_sector_rota[currentLSRota], rewards_rota[currentRewardRota])
