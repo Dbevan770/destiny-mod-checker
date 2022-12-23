@@ -19,7 +19,7 @@ async def helpCommand(client, userId, COMMANDS, log):
     await sm.send_embed_msg(client, userId, "Available Commands", "A list of all Destiny Bot's available commands", 0x5eb5ff, COMMANDS, log)
 
 async def lostSectorCommand(client, userId, log):
-    lost_sector_data = gi.getLostSectorLocal(log)
+    lost_sector_data = await gi.getLostSectorLocal(log)
     lost_sector_location_field = mf.MessageField("Location", f"{lost_sector_data[0]}")
     lost_sector_reward_field = mf.MessageField("Reward Exotics (if Solo)", f"{lost_sector_data[1]}")
     await sm.send_embed_msg(client, userId, "Legendary Lost Sector", "This command is currently in testing. Stay tuned for even more features.", 0xffd700, [lost_sector_location_field, lost_sector_reward_field], log)
