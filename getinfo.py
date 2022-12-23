@@ -139,7 +139,7 @@ async def getLostSectorLocal(log):
     time_between  = todays_date - season_start
     days = time_between.days
 
-    if tk.isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
+    if await tk.isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
         days = days - 1
 
     currentLSRota = days % 11
