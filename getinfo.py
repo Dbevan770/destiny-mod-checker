@@ -1,4 +1,6 @@
 import pagerequest as pr
+import timekeeper as tk
+import datetime
 from bs4 import BeautifulSoup
 from datetime import date
 import re
@@ -152,9 +154,13 @@ async def getLostSectorLocal(log):
     todays_date = date.today()
 
     time_between  = todays_date - season_start
+    days = time_between.days
 
-    currentLSRota = time_between.days % 11
-    currentRewardRota = time_between.days % 4
+    if tk.isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
+        days = days - 1
+
+    currentLSRota = days % 11
+    currentRewardRota = days % 4
 
     log.AddLine(f"Current Lost Sector in Rotation: {lost_sector_rota[currentLSRota]}")
     log.AddLine(f"Current Reward: {rewards_rota[currentRewardRota]}")

@@ -14,13 +14,11 @@ import quotes as q
 import generatelogs as logs
 import pagerequest as pr
 import getinfo as gi
+import timekeeper as tk
 from bs4 import BeautifulSoup
 from datetime import date
 from dotenv import load_dotenv
 from deletemods import deleteMods, undoDeletion as dm
-
-# Globally create an empty string for Xur's location on the weekend.
-XURLOCATION = ""
 
 # Store Admin commands for the Bot
 ADMIN_COMMANDS = []
@@ -153,45 +151,6 @@ async def checkIfNew(user, weaponmods, good_weapons, armormods, lostsector):
 
         return [weapon_field, good_weapon_field, armor_field, lostsector_field]
 
-# Check if it is a weekend so we know to look for info on Xur
-async def checkIsWeekend(log):
-    # If day is currently between 4 (Friday) and 6 (Sunday)
-    # ToDo: Add support for Monday until reset as well
-    if datetime.datetime.today().weekday() >= 4 and datetime.datetime.today().weekday() <= 6:
-        # Additional check on Fridays, Xur will not be around until the reset
-        # We need to check if it is after the reset or not when run on Friday
-        if datetime.datetime.today().weekday() == 4:
-            if await isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
-                log.AddLine("It's the weekend!")
-                return True
-            else:
-                return False
-        # If it is Monday, but not after the daily reset, Xur is still around
-        # therefore it is still the weekend and we need to treat it that way
-        elif datetime.datetime.today.weekday() == 0:
-            if await isTimeBetween(datetime.time(00,00), datetime.time(18,00), datetime.datetime.now().time()):
-                log.AddLine("It's the weekend!")
-                return True
-            else:
-                return False
-        # Outside of the special conditions if it is between those times than it is the weekend
-        else:
-            log.AddLine("It's the weekend!")
-            return True
-    # If none of this is true, it is a weekday
-    else:
-        log.AddLine("Another day in the office...")
-        return False
-
-# Used to check if the current time is after daily reset time
-# Useful for running the bot on a Friday when Xur is not around
-async def isTimeBetween (startTime, endTime, nowTime):
-    if startTime < endTime:
-	    return nowTime >= startTime and nowTime <= endTime
-    else:
-	    return nowTime >= startTime or nowTime <= endTime
-
-
 # Main loop of the program, executed on a timer every 24 hours
 async def main():
     # Ensure proper scope of these variables
@@ -273,7 +232,7 @@ async def main():
         isWeekend = False
 
         # Store yesterday's Mods
-        isWeekend = await checkIsWeekend(log)
+        isWeekend = await tk.checkIsWeekend(log)
 
         if isWeekend:
             prev_info = [[],[],[],[],""]
@@ -341,7 +300,7 @@ async def main():
             increment = 0
 
             # Check if it is the weekend for Xur info
-            isWeekend = await checkIsWeekend(log)
+            isWeekend = await tk.checkIsWeekend(log)
 
             # If the Bot has not been told to run immediately prepare to wait for next daily reset
             if not runOnce:
@@ -354,7 +313,7 @@ async def main():
                     log.AddLine(f"Xur Location: {prev_info[4]}")
 
                 # Check if users have deleted their mods 1 hour before the reset.
-                await asyncio.sleep(seconds_until(17,0))
+                await asyncio.sleep(tk.seconds_until(17,0))
                 for user in USERS:
                     if user.hasMissingMods and not user.hasDeleted:
                         log.AddLine(f"User: {user.id} has forgotten to delete their mods... Reminding them before the reset...")
@@ -367,7 +326,7 @@ async def main():
                 # immediately at reset so there is no point in making
                 # 5 requests every time unnecessarily
                 log.AddLine("Waiting until next Daily Reset...")
-                await asyncio.sleep(seconds_until(18,5))
+                await asyncio.sleep(tk.seconds_until(18,5))
             # When runOnce is true, script will set prev_info to blank so it must
             # run regardless of whether the prev info matches today or not
             else:
@@ -380,7 +339,7 @@ async def main():
             log.AddLine("Running script...")
 
             # Check again if it is the weekend since waiting
-            isWeekend = await checkIsWeekend(log)
+            isWeekend = await tk.checkIsWeekend(log)
 
             # Gather the info on mods, lost sectors, and Xur if applicable
             INFO = await gi.getInfo(isWeekend, log)
@@ -423,7 +382,7 @@ async def main():
                 fields = await checkIfNew(user, INFO[0], INFO[1], INFO[2], INFO[3])
                 # If it's Tuesday after the daily reset than it is also the weekley reset.
                 # Add additional field to let players know.
-                if datetime.datetime.today().weekday() == 1 and isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
+                if datetime.datetime.today().weekday() == 1 and tk.isTimeBetween(datetime.time(18,00), datetime.time(00,00), datetime.datetime.now().time()):
                     fields.append(mf.MessageField("Weekly Reset","Today is Tuesday which means there has been a weekly reset! Start grinding those pinacles Guardian. GM nightfalls won't get completed with your tiny light level!"))
 
                 # If it is the weekend add additional field for Xur information
@@ -449,17 +408,6 @@ async def main():
             print("User is an Admin!")
         else:
             print("User is not an Admin!")
-
-    
-# Function that pauses execution of the main loop until a certain time day
-def seconds_until(hours, minutes):
-    given_time = datetime.time(hours, minutes)
-    now = datetime.datetime.now()
-    future_exec = datetime.datetime.combine(now, given_time)
-    if (future_exec - now).days < 0:  # If we are past the execution, it will take place tomorrow
-        future_exec = datetime.datetime.combine(now + datetime.timedelta(days=1), given_time) # days always >= 0
-
-    return (future_exec - now).total_seconds()
 
 # What does the bot do as soon as it is ready?    
 @client.event
