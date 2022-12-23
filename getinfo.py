@@ -132,23 +132,6 @@ async def getXurInfo(page, log):
     log.AddLine("Successfully retrieved Xur's Location")
     return xur[1].strip()
 
-# Extract current legendary lost sector information
-async def getLostSector(page, log):
-    # Define html parser
-    soup = BeautifulSoup(page, "html.parser")
-
-    # Get all the divs with the class legend-rewards, this is where lost sector info is stored
-    div = soup.find("div", {'class':'legend-rewards'})
-
-    # If the parser finds no data, there was an issue with the request, return blank string so it will run again
-    if div == None:
-        return ""
-    else:
-        # Otherwise grab the h3 which contains the lost sector name
-        h3 = div.findChild("h3")
-        ls = h3.findAll(text=True)
-        return ls[0]
-
 async def getLostSectorLocal(log):
     season_start = date(2022, 12, 6)
     todays_date = date.today()
