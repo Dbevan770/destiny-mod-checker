@@ -22,18 +22,18 @@ async def checkIsWeekend(log):
                 return True
             else:
                 return False
-        # If it is Monday, but not after the daily reset, Xur is still around
-        # therefore it is still the weekend and we need to treat it that way
-        elif datetime.datetime.today.weekday() == 0:
-            if await isTimeBetween(datetime.time(00,00), datetime.time(18,00), datetime.datetime.now().time()):
-                log.AddLine("It's the weekend!")
-                return True
-            else:
-                return False
         # Outside of the special conditions if it is between those times than it is the weekend
         else:
             log.AddLine("It's the weekend!")
             return True
+    # If it is Monday, but not after the daily reset, Xur is still around
+    # therefore it is still the weekend and we need to treat it that way
+    elif datetime.datetime.today.weekday() == 0:
+        if await isTimeBetween(datetime.time(00,00), datetime.time(18,00), datetime.datetime.now().time()):
+            log.AddLine("It's the weekend!")
+            return True
+        else:
+            return False
     # If none of this is true, it is a weekday
     else:
         log.AddLine("Another day in the office...")
