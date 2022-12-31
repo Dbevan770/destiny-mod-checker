@@ -4,6 +4,7 @@ import deletemods as dm
 import pagerequest as pr
 import getinfo as gi
 import modchecker as mc
+import timekeeper as tk
 import users
 
 deletemods = mf.MessageField("!deletemods", "Use this to tell Destiny Bot that you bought your missing mods and have it remove them from your list")
@@ -25,7 +26,7 @@ async def lostSectorCommand(client, userId, log):
     await sm.send_embed_msg(client, userId, "Legendary Lost Sector", "This command is currently in testing. Stay tuned for even more features.", 0xffd700, [lost_sector_location_field, lost_sector_reward_field], log)
 
 async def xurCommand(client, userId, log):
-    isWeekend = await mc.checkIsWeekend(log)
+    isWeekend = await tk.checkIsWeekend(log)
     if not isWeekend:
         await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0x3c1361, [mf.MessageField("Location", f"Xûr is currently not around at the moment can I take a message? (If it is not the weekend, he is not around. If it is the weekend light.gg may not be working at the moment try again later)."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!")], log)
     else:
