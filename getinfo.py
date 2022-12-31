@@ -135,20 +135,15 @@ async def getXurInfo(page, log):
 
 async def getXurArmorInfo(page, log):
     # Xur Message Fields
-    xurExotic = mf.ArmorMessageField("Exotic",
-        f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}",
-        _mobility,
-        _resilience,
-        _recovery,
-        _discipline,
-        _intellect,
-        _strength
-    )
-    xurHelmet = mf.ArmorMessageField("Helmet", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
-    xurArms = mf.ArmorMessageField("Arms", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
-    xurChest = mf.ArmorMessageField("Chest", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
-    xurLegs = mf.ArmorMessageField("Legs", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
-    xurClassItem = mf.ArmorMessageField("Class Item", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+    xurHunter = mf.MessageField("Hunter", "Armor items sold for the Hunter class.")
+    xurTitan = mf.MessageField("Titan", "Armor items sold for the Titan class.")
+    xurWarlock = mf.MessageField("Warlock", "Armor items sold for the Warlock class")
+    xurExotic = mf.ArmorMessageField("Exotic","", 0, 0, 0, 0, 0, 0)
+    xurHelmet = mf.ArmorMessageField("Helmet", "", 0, 0, 0, 0, 0, 0)
+    xurArms = mf.ArmorMessageField("Arms", "", 0, 0, 0, 0, 0, 0)
+    xurChest = mf.ArmorMessageField("Chest", "", 0, 0, 0, 0, 0, 0)
+    xurLegs = mf.ArmorMessageField("Legs", "", 0, 0, 0, 0, 0, 0)
+    xurClassItem = mf.ArmorMessageField("Class Item", "", 0, 0, 0, 0, 0, 0)
 
     armorFields = [
         xurExotic,
@@ -158,6 +153,8 @@ async def getXurArmorInfo(page, log):
         xurLegs,
         xurClassItem
     ]
+
+    xurMessage = []
 
     page = await pr.requestPage(log)
 
@@ -172,7 +169,8 @@ async def getXurArmorInfo(page, log):
         armorContainer = section.find_all('div', class_="rewards-container")
         for rewards in armorContainer:
             clearfix = rewards.find_all('div', class_="clearfix")
-
+    
+    classIndex = 0
     for _class in clearfix:
         itemStats = _class.select('div.xur-stats')
         statAmounts = []
@@ -185,23 +183,39 @@ async def getXurArmorInfo(page, log):
             statIndex = 0
             for stat in statAmounts:
                 if statIndex == 0:
-                    armorFields[index]._mobility = stat.text
+                    armorFields[index].mobility = stat.text
                 elif statIndex == 1:
-                    armorFields[index]._resilience = stat.text
+                    armorFields[index].resilience = stat.text
                 elif statIndex == 2:
-                    armorFields[index]._recovery = stat.text
+                    armorFields[index].recovery = stat.text
                 elif statIndex == 3:
-                    armorFields[index]._discipline = stat.text
+                    armorFields[index].discipline = stat.text
                 elif statIndex == 4:
-                    armorFields[index]._intellect = stat.text
+                    armorFields[index].intellect = stat.text
                 elif statIndex == 5:
-                    armorFields[index]._strength = stat.text
+                    armorFields[index].strength = stat.text
 
+                armorFields[index].generateValueMessage()
                 statIndex += 1
 
             index += 1
-            
-    return armorFields
+        if classIndex == 0:
+            xurMessage.append(xurHunter)
+            xurMessage.append(armorFields)
+            classIndex += 1
+            continue
+        elif classIndex == 1:
+            xurMessage.append(xurTitan)
+            xurMessage.append(armorFields)
+            classIndex += 1
+            continue
+        elif classIndex == 2:
+            xurMessage.append(xurWarlock)
+            xurMessage.append(armorFields)
+            classIndex += 1
+            continue
+
+    return xurMessage
 
 async def getLostSectorLocal(log):
     season_start = date(2022, 12, 6)

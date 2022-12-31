@@ -33,7 +33,38 @@ async def xurCommand(client, userId, log):
         page = await pr.requestPage(log)
         xurLocation = await gi.getXurInfo(page[1], log)
         xurArmor = await gi.getXurArmorInfo(page[1], log)
-        await sm.send_embed_msg(client, userId, "Xûr", "Find out where Xûr is this weekend.", 0x3c1361, [mf.MessageField("Location", f"Xûr is located at the {xurLocation}."), mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!"), xurArmor[0], xurArmor[1], xurArmor[2], xurArmor[3], xurArmor[4], xurArmor[5]], log)
+        await sm.send_embed_msg(
+                                client,
+                                userId,
+                                "Xûr",
+                                "Find out where Xûr is this weekend.",
+                                0x3c1361,
+                                [
+                                    mf.MessageField("Location", f"Xûr is located at the {xurLocation}."),
+                                    mf.MessageField("Items Available", "This is currently in testing. Please stay tuned!"), xurArmor[0],
+                                        xurArmor[1][0],
+                                        xurArmor[1][1],
+                                        xurArmor[1][2],
+                                        xurArmor[1][3],
+                                        xurArmor[1][4],
+                                        xurArmor[1][5],
+                                    xurArmor[2],
+                                        xurArmor[3][0],
+                                        xurArmor[3][1],
+                                        xurArmor[3][2],
+                                        xurArmor[3][3],
+                                        xurArmor[3][4],
+                                        xurArmor[3][5],
+                                    xurArmor[4],
+                                        xurArmor[5][0],
+                                        xurArmor[5][1],
+                                        xurArmor[5][2],
+                                        xurArmor[5][3],
+                                        xurArmor[5][4],
+                                        xurArmor[5][5],
+                                ],
+                                log
+                                )
 
 async def adminCommand(client, userId, userName, log):
     log.AddLine(f"Checking if User: {userName} ID: {userId} is an Admin...")
