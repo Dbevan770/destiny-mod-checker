@@ -1,5 +1,6 @@
 import pagerequest as pr
 import timekeeper as tk
+import messagefield as mf
 import datetime
 from bs4 import BeautifulSoup
 from datetime import date
@@ -131,6 +132,76 @@ async def getXurInfo(page, log):
 
     log.AddLine("Successfully retrieved Xur's Location")
     return xur[1].strip()
+
+async def getXurArmorInfo(page, log):
+    # Xur Message Fields
+    xurExotic = mf.ArmorMessageField("Exotic",
+        f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}",
+        _mobility,
+        _resilience,
+        _recovery,
+        _discipline,
+        _intellect,
+        _strength
+    )
+    xurHelmet = mf.ArmorMessageField("Helmet", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+    xurArms = mf.ArmorMessageField("Arms", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+    xurChest = mf.ArmorMessageField("Chest", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+    xurLegs = mf.ArmorMessageField("Legs", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+    xurClassItem = mf.ArmorMessageField("Class Item", f"Mobility: {_mobility}    Resilience: {_resilience}    Recovery: {_recovery}\nDiscipline: {_discipline}    Intellect: {_intellect}    Strength: {_strength}", _mobility, _resilience, _recovery, _discipline, _intellect, _strength)
+
+    armorFields = [
+        xurExotic,
+        xurHelmet,
+        xurArms,
+        xurChest,
+        xurLegs,
+        xurClassItem
+    ]
+
+    page = await pr.requestPage(log)
+
+    soup = BeautifulSoup(page[1], "html.parser")
+
+    xurBillboard = soup.find_all('div', id="xurv2-billboard")
+
+    for section in xurBillboard:
+        xurArmor = section.find_all('div', class_="armor-container")
+
+    for section in xurArmor:
+        armorContainer = section.find_all('div', class_="rewards-container")
+        for rewards in armorContainer:
+            clearfix = rewards.find_all('div', class_="clearfix")
+
+    for _class in clearfix:
+        itemStats = _class.select('div.xur-stats')
+        statAmounts = []
+        index = 0
+        for item in itemStats:
+            d2Stats = item.select('div.d2-stats span span')
+            d1Stats = item.select('div.d1-stats span span')
+            statAmounts = d2Stats + d1Stats
+
+            statIndex = 0
+            for stat in statAmounts:
+                if statIndex == 0:
+                    armorFields[index]._mobility = stat.text
+                elif statIndex == 1:
+                    armorFields[index]._resilience = stat.text
+                elif statIndex == 2:
+                    armorFields[index]._recovery = stat.text
+                elif statIndex == 3:
+                    armorFields[index]._discipline = stat.text
+                elif statIndex == 4:
+                    armorFields[index]._intellect = stat.text
+                elif statIndex == 5:
+                    armorFields[index]._strength = stat.text
+
+                statIndex += 1
+
+            index += 1
+            
+    return armorFields
 
 async def getLostSectorLocal(log):
     season_start = date(2022, 12, 6)
