@@ -1,5 +1,4 @@
 import datetime
-from datetime import date
 
 # Used to check if the current time is after daily reset time
 # Useful for running the bot on a Friday when Xur is not around
@@ -28,7 +27,7 @@ async def checkIsWeekend(log):
             return True
     # If it is Monday, but not after the daily reset, Xur is still around
     # therefore it is still the weekend and we need to treat it that way
-    elif datetime.datetime.today.weekday() == 0:
+    elif datetime.datetime.today().weekday() == 0:
         if await isTimeBetween(datetime.time(00,00), datetime.time(18,00), datetime.datetime.now().time()):
             log.AddLine("It's the weekend!")
             return True
