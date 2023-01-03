@@ -10,10 +10,10 @@ Mods can also be earned through random world drops as well and chests.
 To check if a mod you still need is available you would need to login into the game and run to the vendor yourself or manually check one of the fan-made
 websites that pull data from the API. I wanted a simpler solution and so developed this Bot.
 
-![Banshee-44 shop](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Banshee-44.jpg "Merchant Banshee-44's Store")
+![Banshee-44 shop](https://github.com/Dbevan770/destiny-mod-checker/blob/main/assets/Banshee-44.jpg "Merchant Banshee-44's Store")
 *The merchant Banshee-44 who sells weapon mods for players*
 
-![Ada-1 shop](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Ada-1.jpg "Merchant Ada-1's Store")
+![Ada-1 shop](https://github.com/Dbevan770/destiny-mod-checker/blob/main/assets/Ada-1.jpg "Merchant Ada-1's Store")
 *The merchant Ada-1 who sells armor mods for players*
 
 
@@ -25,7 +25,7 @@ the list of those you are missing into a text file.
 The second step is the Discord Bot itself. The Bot uses a .json (Soon to be an SQL database instead) of users to read their modfiles. Every day when the game has it's daily reset of vendors the Bot goes to another fan-made site *light.gg* and pulls that days vendor data. This data is compared to the user's list
 of missing mods and if the vendor is selling one of them, a message is sent via Discord alerting the user they have new mods they can buy.
 
-![Bot Message Example](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Bot-Message-Example.png "Bot Message Example")
+![Bot Message Example](https://github.com/Dbevan770/destiny-mod-checker/blob/main/assets/Bot-Message-Example.png "Bot Message Example")
 *An example of the BOT sending an embedded message to a User on Discord through their direct messages(DMs).*
 
 ## How Many People Use it?
