@@ -4,8 +4,18 @@ In the game Destiny 2, armor and weapon mods are required to make new builds for
 from two vendors. One of them sells weapon mods the other sells armor mods. It seems simple enough however there are only 4 available per day from each
 and which ones they are depend entirely on RNG.
 
+*NOTE*
+Mods can also be earned through random world drops as well and chests.
+
 To check if a mod you still need is available you would need to login into the game and run to the vendor yourself or manually check one of the fan-made
 websites that pull data from the API. I wanted a simpler solution and so developed this Bot.
+
+![Banshee-44 shop](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Banshee-44.jpg "Merchant Banshee-44's Store")
+*The merchant Banshee-44 who sells weapon mods for players*
+
+![Ada-1 shop](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Ada-1.jpg "Merchant Ada-1's Store")
+*The merchant Ada-1 who sells armor mods for players*
+
 
 ## What Does it Do?
 The first step in the functionallity of the Bot is the tool *dimscraper.py*. This tool uses Selenium to open a Chrome browser and log the user into
@@ -14,6 +24,9 @@ the list of those you are missing into a text file.
 
 The second step is the Discord Bot itself. The Bot uses a .json (Soon to be an SQL database instead) of users to read their modfiles. Every day when the game has it's daily reset of vendors the Bot goes to another fan-made site *light.gg* and pulls that days vendor data. This data is compared to the user's list
 of missing mods and if the vendor is selling one of them, a message is sent via Discord alerting the user they have new mods they can buy.
+
+![Bot Message Example](https://github.com/Dbevan770/destiny-mod-checker/tree/main/assets/Bot-Message-Example.png "Bot Message Example")
+*An example of the BOT sending an embedded message to a User on Discord through their direct messages(DMs).*
 
 ## How Many People Use it?
 *Currently Serving: 3 Users*
@@ -46,3 +59,4 @@ Initially this was made only for me. Once my friends wanted to join it was re-wr
 ## Additional Features -- Recently Added
 + Support for Xbox users in dimscraper.py has been added
 + Update message allows a message field detailing new features to be sent to users
++ !xur command will now send the user a message containing all armor stats currently being sold by him.
