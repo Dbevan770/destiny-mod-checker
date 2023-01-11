@@ -131,7 +131,12 @@ async def getXurInfo(page, log):
         return xurLocation
 
     log.AddLine("Successfully retrieved Xur's Location")
-    return xur[1].strip()
+    if xur[1].strip() == "Nessus":
+        return "Watcher's Grave (Nessus)"
+    elif xur[1].strip() == "EDZ":
+        return "Winding Cove (EDZ)"
+    else:
+        return xur[1].strip()
 
 async def getXurArmorInfo(page, log):
     # Xur Message Fields
