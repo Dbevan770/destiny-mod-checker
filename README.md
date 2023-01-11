@@ -1,4 +1,8 @@
 # Destiny Mod Checker -- The Ultimate Discord Bot for Destiny 2
+## Final Update
+As of 10 JAN 2023 Bungie announced on Twitter that the Armor mods in game will now be unlocked by default for everyone. This has effectively ended the main purpose for the BOT and I will be moving on from the project to find other things to learn about. This project has taught me a lot about Python, APIs, and HTTP (requests, headers, bodies).
+
+![Bungie Tweet](https://github.com/Dbevan770/destiny-mod-checker/blob/main/assets/Bungie-Tweet.png "Bungie's Tweet about Armor Mods being unlocked for everyone by default")
 ## What is it?
 In the game Destiny 2, armor and weapon mods are required to make new builds for your character classes. The system to acquire mods is to purchase them
 from two vendors. One of them sells weapon mods the other sells armor mods. It seems simple enough however there are only 4 available per day from each
